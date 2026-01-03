@@ -1,0 +1,2 @@
+ALTER TABLE `workflowEnrollments` MODIFY COLUMN `status` enum('active','completed','exited','failed') NOT NULL DEFAULT 'active';--> statement-breakpoint
+ALTER TABLE `workflowEnrollments` ADD `triggerData` json;
