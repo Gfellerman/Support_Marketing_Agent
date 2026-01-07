@@ -110,6 +110,22 @@ The AI Services Layer provides intelligent automation for the helpdesk system, e
 │  │  • Order issue detection                │               │
 │  │  • Quick action suggestions             │               │
 │  └─────────────────────────────────────────┘               │
+│                      │                                      │
+│                      ▼                                      │
+│  ┌─────────────────────────────────────────┐               │
+│  │    Knowledge Base & RAG (Phase 3)       │               │
+│  │  • Vector Store (TF-IDF similarity)     │               │
+│  │  • Knowledge Base CRUD                  │               │
+│  │  • RAG Service (retrieval-augmented)    │               │
+│  └─────────────────────────────────────────┘               │
+│                      │                                      │
+│                      ▼                                      │
+│  ┌─────────────────────────────────────────┐               │
+│  │   Feedback & Analytics (Phase 5)        │               │
+│  │  • Feedback Service (ratings)           │               │
+│  │  • Analytics Service (metrics)          │               │
+│  │  • Performance tracking                 │               │
+│  └─────────────────────────────────────────┘               │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -205,6 +221,84 @@ Generates contextual responses with multiple options:
 - Confidence scoring
 - Response metadata (tokens used, latency)
 
+#### 5. Vector Store (`server/services/ai/vectorStore.ts`)
+
+In-memory TF-IDF vector store for knowledge base similarity search:
+
+```typescript
+// Key Methods
+TFIDFVectorStore.indexDocument(id, content)  // Add document to index
+TFIDFVectorStore.search(query, topK)         // Find similar documents
+searchKnowledge(query)                        // Search knowledge articles
+refreshKnowledgeIndex()                       // Rebuild full index
+```
+
+**Features:**
+- Tokenization and TF-IDF weighting
+- Cosine similarity matching
+- Auto-indexes active knowledge articles
+
+#### 6. Knowledge Base Service (`server/services/ai/knowledgeBase.ts`)
+
+CRUD operations for helpdesk knowledge articles:
+
+```typescript
+// Key Methods
+createArticle(title, content, category)
+updateArticle(id, updates)
+semanticSearch(query, limit)           // Via vector store
+findRelevantKnowledge(ticketContent)   // For RAG integration
+```
+
+#### 7. RAG Service (`server/services/ai/ragService.ts`)
+
+Retrieval-Augmented Generation for knowledge-grounded responses:
+
+```typescript
+// Key Methods
+generateRAGResponse(ticket, tone)           // Single response with KB context
+generateMultipleRAGResponses(ticket)        // Multiple tone variations
+buildRAGContext(ticketContent)              // Knowledge injection
+```
+
+**Features:**
+- Knowledge source tracking in metadata
+- Confidence boosting based on article relevance
+- Fallback to standard generation when no articles found
+
+#### 8. Feedback Service (`server/services/ai/feedbackService.ts`)
+
+Collects agent feedback on AI responses:
+
+```typescript
+// Key Methods
+submitFeedback(interactionId, rating, wasUsed, wasEdited)
+getFeedbackStats(organizationId, dateRange)
+```
+
+**Tracked Metrics:**
+- Positive/negative ratings
+- Whether response was used
+- Edit distance from original
+
+#### 9. Analytics Service (`server/services/ai/analyticsService.ts`)
+
+AI performance metrics and reporting:
+
+```typescript
+// Key Methods
+getOverviewMetrics(organizationId)     // Summary stats
+getMetricsByCategory(organizationId)   // Breakdown by ticket type
+getMetricsByTone(organizationId)       // Breakdown by tone
+getTrendData(organizationId, days)     // Time series
+```
+
+**Dashboard Metrics:**
+- Response acceptance rate
+- Average confidence scores
+- Usage by category/tone
+- Feedback trends
+
 ### Model Selection Strategy
 
 ```typescript
@@ -213,6 +307,7 @@ const COMPLEX_MODEL = 'llama-3.3-70b-versatile';
 // - Ticket classification
 // - Response generation
 // - Sentiment analysis
+// - RAG responses
 
 // Fast tasks - use smaller model  
 const FAST_MODEL = 'llama-4-scout-16e';
