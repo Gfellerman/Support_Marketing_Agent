@@ -24,6 +24,7 @@ import {
 import { useAIResponses } from "@/hooks/useAI";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { AIFeedbackButtons } from "./AIFeedbackButtons";
 
 interface AIResponsePanelProps {
   ticketId?: string;
@@ -44,6 +45,7 @@ interface GeneratedResponse {
   tone: Tone;
   confidence: number;
   knowledgeSourcesUsed?: string[];
+  interactionId?: number;
 }
 
 export function AIResponsePanel({
@@ -241,7 +243,7 @@ export function AIResponsePanel({
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -263,6 +265,19 @@ export function AIResponsePanel({
                           Insert
                         </Button>
                       )}
+                      
+                      {/* Feedback Buttons */}
+                      {responses[tone]!.interactionId && (
+                        <div className="border-l pl-2 ml-1">
+                          <AIFeedbackButtons
+                            interactionId={responses[tone]!.interactionId!}
+                            originalResponse={responses[tone]!.content}
+                            category={ticketSubject}
+                            tone={tone}
+                          />
+                        </div>
+                      )}
+                      
                       {onSendResponse && (
                         <Button
                           size="sm"

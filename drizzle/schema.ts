@@ -158,92 +158,31 @@ export type Workflow = typeof workflows.$inferSelect;
 export type InsertWorkflow = typeof workflows.$inferInsert;
 
 /**
- * Workflow Enrollments - tracks contacts in workflows
- */
-export const workflowEnrollments = mysqlTable("workflowEnrollments", {
-  id: int("id").autoincrement().primaryKey(),
-  workflowId: int("workflowId").notNull(),
-  contactId: int("contactId").notNull(),
-  currentStep: int("currentStep").default(0),
-  status: mysqlEnum("status", ["active", "completed", "exited", "failed"]).default("active").notNull(),
-  triggerData: json("triggerData").$type<Record<string, unknown>>(),
-  enrolledAt: timestamp("enrolledAt").defaultNow().notNull(),
-  completedAt: timestamp("completedAt"),
-});
-
-export type WorkflowEnrollment = typeof workflowEnrollments.$inferSelect;
-export type InsertWorkflowEnrollment = typeof workflowEnrollments.$inferInsert;
-
-/**
- * Helpdesk Tickets
- */
-export const tickets = mysqlTable("tickets", {
-  id: int("id").autoincrement().primaryKey(),
-  organizationId: int("organizationId").notNull(),
-  ticketNumber: varchar("ticketNumber", { length: 50 }).notNull().unique(),
-  contactId: int("contactId"),
-  subject: varchar("subject", { length: 500 }).notNull(),
-  channel: mysqlEnum("channel", ["email", "chat", "social", "phone", "web"]).notNull(),
-  status: mysqlEnum("status", ["open", "pending", "resolved", "closed"]).default("open").notNull(),
-  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
-  assignedTo: int("assignedTo"),
-  category: varchar("category", { length: 100 }),
-  tags: json("tags").$type<string[]>(),
-  firstResponseAt: timestamp("firstResponseAt"),
-  resolvedAt: timestamp("resolvedAt"),
-  closedAt: timestamp("closedAt"),
-  // AI metadata fields
-  aiCategory: varchar("aiCategory", { length: 50 }),
-  aiPriority: mysqlEnum("aiPriority", ["low", "medium", "high", "urgent"]),
-  aiSentiment: mysqlEnum("aiSentiment", ["positive", "neutral", "negative", "angry"]),
-  aiSentimentScore: decimal("aiSentimentScore", { precision: 4, scale: 3 }),
-  aiConfidence: decimal("aiConfidence", { precision: 4, scale: 3 }),
-  aiClassifiedAt: timestamp("aiClassifiedAt"),
-  aiUrgencyIndicators: json("aiUrgencyIndicators").$type<string[]>(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Ticket = typeof tickets.$inferSelect;
-export type InsertTicket = typeof tickets.$inferInsert;
-
-/**
- * Ticket Messages
- */
-export const ticketMessages = mysqlTable("ticketMessages", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull(),
-  senderId: int("senderId"),
-  senderType: mysqlEnum("senderType", ["user", "contact", "ai"]).notNull(),
-  content: text("content").notNull(),
-  isInternal: boolean("isInternal").default(false),
-  attachments: json("attachments").$type<any[]>(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type TicketMessage = typeof ticketMessages.$inferSelect;
-export type InsertTicketMessage = typeof ticketMessages.$inferInsert;
-
-/**
- * Orders - synced from e-commerce platforms
+ * Orders - Synced from e-commerce platform
  */
 export const orders = mysqlTable("orders", {
   id: int("id").autoincrement().primaryKey(),
   organizationId: int("organizationId").notNull(),
   contactId: int("contactId"),
-  externalOrderId: varchar("externalOrderId", { length: 255 }).notNull(),
   orderNumber: varchar("orderNumber", { length: 100 }).notNull(),
-  platform: mysqlEnum("platform", ["shopify", "woocommerce", "custom"]).notNull(),
-  status: varchar("status", { length: 100 }).notNull(),
-  financialStatus: varchar("financialStatus", { length: 100 }),
-  fulfillmentStatus: varchar("fulfillmentStatus", { length: 100 }),
-  totalPrice: decimal("totalPrice", { precision: 10, scale: 2 }).notNull(),
-  currency: varchar("currency", { length: 10 }).default("USD"),
+  externalId: varchar("externalId", { length: 255 }),
+  status: mysqlEnum("status", ["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]).default("pending").notNull(),
+  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }),
+  tax: decimal("tax", { precision: 10, scale: 2 }),
+  shipping: decimal("shipping", { precision: 10, scale: 2 }),
+  discount: decimal("discount", { precision: 10, scale: 2 }),
+  currency: varchar("currency", { length: 3 }).default("USD"),
   items: json("items").$type<any[]>(),
   shippingAddress: json("shippingAddress").$type<any>(),
+  billingAddress: json("billingAddress").$type<any>(),
   trackingNumber: varchar("trackingNumber", { length: 255 }),
   trackingUrl: text("trackingUrl"),
-  orderDate: timestamp("orderDate").notNull(),
+  notes: text("notes"),
+  source: varchar("source", { length: 100 }),
+  orderedAt: timestamp("orderedAt").notNull(),
+  shippedAt: timestamp("shippedAt"),
+  deliveredAt: timestamp("deliveredAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -252,44 +191,74 @@ export type Order = typeof orders.$inferSelect;
 export type InsertOrder = typeof orders.$inferInsert;
 
 /**
- * Platform Integrations
+ * Support Tickets - Helpdesk system
  */
-export const integrations = mysqlTable("integrations", {
+export const tickets = mysqlTable("tickets", {
   id: int("id").autoincrement().primaryKey(),
   organizationId: int("organizationId").notNull(),
-  platform: mysqlEnum("platform", ["shopify", "woocommerce", "stripe", "custom"]).notNull(),
-  status: mysqlEnum("status", ["active", "inactive", "error"]).default("inactive").notNull(),
-  credentials: json("credentials").$type<any>().notNull(),
-  config: json("config").$type<any>(),
-  lastSyncAt: timestamp("lastSyncAt"),
-  syncStatus: varchar("syncStatus", { length: 100 }),
-  errorMessage: text("errorMessage"),
+  contactId: int("contactId"),
+  orderId: int("orderId"),
+  ticketNumber: varchar("ticketNumber", { length: 50 }).notNull(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  status: mysqlEnum("status", ["open", "pending", "in_progress", "resolved", "closed"]).default("open").notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  category: varchar("category", { length: 100 }),
+  channel: mysqlEnum("channel", ["email", "chat", "phone", "social", "web"]).default("email").notNull(),
+  assignedTo: int("assignedTo"),
+  // AI-enhanced fields
+  aiCategory: varchar("aiCategory", { length: 100 }),
+  aiPriority: mysqlEnum("aiPriority", ["low", "medium", "high", "urgent"]),
+  aiSentiment: mysqlEnum("aiSentiment", ["positive", "neutral", "negative", "frustrated"]),
+  aiConfidence: decimal("aiConfidence", { precision: 4, scale: 3 }),
+  aiSuggestedActions: json("aiSuggestedActions").$type<string[]>(),
+  firstResponseAt: timestamp("firstResponseAt"),
+  resolvedAt: timestamp("resolvedAt"),
+  tags: json("tags").$type<string[]>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export type Integration = typeof integrations.$inferSelect;
-export type InsertIntegration = typeof integrations.$inferInsert;
+export type Ticket = typeof tickets.$inferSelect;
+export type InsertTicket = typeof tickets.$inferInsert;
 
 /**
- * Analytics Events - track email opens, clicks, etc.
+ * Ticket Messages/Replies
  */
-export const analyticsEvents = mysqlTable("analyticsEvents", {
+export const ticketMessages = mysqlTable("ticketMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull(),
+  senderId: int("senderId"),
+  senderType: mysqlEnum("senderType", ["customer", "agent", "system", "ai"]).notNull(),
+  content: text("content").notNull(),
+  htmlContent: text("htmlContent"),
+  attachments: json("attachments").$type<any[]>(),
+  isInternal: boolean("isInternal").default(false),
+  aiGenerated: boolean("aiGenerated").default(false),
+  aiEdited: boolean("aiEdited").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TicketMessage = typeof ticketMessages.$inferSelect;
+export type InsertTicketMessage = typeof ticketMessages.$inferInsert;
+
+/**
+ * Email Events - Track opens, clicks, etc.
+ */
+export const emailEvents = mysqlTable("emailEvents", {
   id: int("id").autoincrement().primaryKey(),
   organizationId: int("organizationId").notNull(),
-  eventType: mysqlEnum("eventType", ["email_sent", "email_opened", "email_clicked", "email_bounced", "unsubscribed", "ticket_created", "ticket_resolved"]).notNull(),
-  entityType: varchar("entityType", { length: 50 }).notNull(),
-  entityId: int("entityId").notNull(),
-  contactId: int("contactId"),
+  campaignId: int("campaignId"),
+  contactId: int("contactId").notNull(),
+  eventType: mysqlEnum("eventType", ["sent", "delivered", "opened", "clicked", "bounced", "complained", "unsubscribed"]).notNull(),
   metadata: json("metadata").$type<any>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
-export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
-export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+export type EmailEvent = typeof emailEvents.$inferSelect;
+export type InsertEmailEvent = typeof emailEvents.$inferInsert;
 
 /**
- * AI Knowledge Base
+ * AI Knowledge Base - Articles for RAG
  */
 export const aiKnowledge = mysqlTable("aiKnowledge", {
   id: int("id").autoincrement().primaryKey(),
@@ -298,8 +267,8 @@ export const aiKnowledge = mysqlTable("aiKnowledge", {
   content: text("content").notNull(),
   category: varchar("category", { length: 100 }),
   tags: json("tags").$type<string[]>(),
-  isActive: boolean("isActive").default(true),
-  createdBy: int("createdBy").notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdBy: int("createdBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -308,55 +277,23 @@ export type AIKnowledge = typeof aiKnowledge.$inferSelect;
 export type InsertAIKnowledge = typeof aiKnowledge.$inferInsert;
 
 /**
- * Workflow Templates - User-saved workflow templates
- */
-export const workflowTemplates = mysqlTable("workflowTemplates", {
-  id: int("id").autoincrement().primaryKey(),
-  organizationId: int("organizationId").notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  category: mysqlEnum("category", ["ecommerce", "saas", "retail", "services", "general", "custom"]).default("custom").notNull(),
-  tags: json("tags").$type<string[]>(),
-  icon: varchar("icon", { length: 10 }).default("📋"),
-  triggerType: mysqlEnum("triggerType", ["welcome", "abandoned_cart", "order_confirmation", "shipping", "custom"]).notNull(),
-  steps: json("steps").$type<Array<{ id: string; type: string; config: Record<string, unknown> }>>().notNull(),
-  isPublic: boolean("isPublic").default(false),
-  usageCount: int("usageCount").default(0),
-  createdBy: int("createdBy").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type WorkflowTemplate = typeof workflowTemplates.$inferSelect;
-export type InsertWorkflowTemplate = typeof workflowTemplates.$inferInsert;
-
-/**
- * AI Settings - Configuration for AI assistance behavior
+ * AI Settings - Per-organization AI configuration
  */
 export const aiSettings = mysqlTable("aiSettings", {
   id: int("id").autoincrement().primaryKey(),
   organizationId: int("organizationId").notNull().unique(),
-  
-  // Confidence thresholds (0-100)
-  minConfidenceThreshold: int("minConfidenceThreshold").default(70).notNull(), // Minimum confidence to show AI suggestions
-  autoResponseThreshold: int("autoResponseThreshold").default(90).notNull(), // Confidence needed for auto-response
-  
-  // Feature toggles
+  minConfidenceThreshold: int("minConfidenceThreshold").default(70).notNull(),
+  autoResponseThreshold: int("autoResponseThreshold").default(90).notNull(),
   aiEnabled: boolean("aiEnabled").default(true).notNull(),
   autoResponseEnabled: boolean("autoResponseEnabled").default(false).notNull(),
-  
-  // Human review requirements
   requireHumanReviewUrgent: boolean("requireHumanReviewUrgent").default(true).notNull(),
   requireHumanReviewNegative: boolean("requireHumanReviewNegative").default(true).notNull(),
-  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type AISettings = typeof aiSettings.$inferSelect;
 export type InsertAISettings = typeof aiSettings.$inferInsert;
-
-
 
 /**
  * AI Interactions Log - Track AI usage for analytics and improvement
@@ -371,13 +308,74 @@ export const aiInteractions = mysqlTable("aiInteractions", {
   outputTokens: int("outputTokens"),
   latencyMs: int("latencyMs"),
   confidenceScore: decimal("confidenceScore", { precision: 4, scale: 3 }),
-  wasUsed: boolean("wasUsed").default(false), // Did agent use the AI suggestion?
+  wasUsed: boolean("wasUsed").default(false),
   feedback: mysqlEnum("feedback", ["positive", "negative", "edited"]),
-  inputSummary: text("inputSummary"), // Truncated input for debugging
-  outputSummary: text("outputSummary"), // Truncated output for debugging
+  inputSummary: text("inputSummary"),
+  outputSummary: text("outputSummary"),
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export type AIInteraction = typeof aiInteractions.$inferSelect;
 export type InsertAIInteraction = typeof aiInteractions.$inferInsert;
+
+/**
+ * AI Feedback - Detailed feedback tracking for learning & optimization
+ */
+export const aiFeedback = mysqlTable("aiFeedback", {
+  id: int("id").autoincrement().primaryKey(),
+  organizationId: int("organizationId").notNull(),
+  interactionId: int("interactionId").notNull(),
+  agentId: int("agentId"),
+  rating: mysqlEnum("rating", ["positive", "negative"]).notNull(),
+  wasUsed: boolean("wasUsed").default(false).notNull(),
+  wasEdited: boolean("wasEdited").default(false).notNull(),
+  editDistance: int("editDistance"),
+  originalResponse: text("originalResponse"),
+  finalResponse: text("finalResponse"),
+  category: varchar("category", { length: 100 }),
+  tone: varchar("tone", { length: 50 }),
+  comment: text("comment"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AIFeedback = typeof aiFeedback.$inferSelect;
+export type InsertAIFeedback = typeof aiFeedback.$inferInsert;
+
+// Relations
+export const organizationsRelations = relations(organizations, ({ one, many }) => ({
+  owner: one(users, { fields: [organizations.ownerId], references: [users.id] }),
+  contacts: many(contacts),
+  tickets: many(tickets),
+  orders: many(orders),
+}));
+
+export const contactsRelations = relations(contacts, ({ one, many }) => ({
+  organization: one(organizations, { fields: [contacts.organizationId], references: [organizations.id] }),
+  tickets: many(tickets),
+  orders: many(orders),
+}));
+
+export const ticketsRelations = relations(tickets, ({ one, many }) => ({
+  organization: one(organizations, { fields: [tickets.organizationId], references: [organizations.id] }),
+  contact: one(contacts, { fields: [tickets.contactId], references: [contacts.id] }),
+  order: one(orders, { fields: [tickets.orderId], references: [orders.id] }),
+  messages: many(ticketMessages),
+  assignee: one(users, { fields: [tickets.assignedTo], references: [users.id] }),
+}));
+
+export const ticketMessagesRelations = relations(ticketMessages, ({ one }) => ({
+  ticket: one(tickets, { fields: [ticketMessages.ticketId], references: [tickets.id] }),
+  sender: one(users, { fields: [ticketMessages.senderId], references: [users.id] }),
+}));
+
+export const ordersRelations = relations(orders, ({ one }) => ({
+  organization: one(organizations, { fields: [orders.organizationId], references: [organizations.id] }),
+  contact: one(contacts, { fields: [orders.contactId], references: [contacts.id] }),
+}));
+
+export const aiFeedbackRelations = relations(aiFeedback, ({ one }) => ({
+  interaction: one(aiInteractions, { fields: [aiFeedback.interactionId], references: [aiInteractions.id] }),
+  agent: one(users, { fields: [aiFeedback.agentId], references: [users.id] }),
+  organization: one(organizations, { fields: [aiFeedback.organizationId], references: [organizations.id] }),
+}));

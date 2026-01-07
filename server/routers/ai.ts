@@ -15,6 +15,8 @@ import { buildCustomerContext, buildOrderContext } from "../services/ai/contextB
 import { knowledgeBaseService, findRelevantKnowledge } from "../services/ai/knowledgeBase";
 import { searchKnowledge, refreshKnowledgeIndex } from "../services/ai/vectorStore";
 import { generateRAGResponse, generateMultipleRAGResponses, buildRAGContext } from "../services/ai/ragService";
+import { submitFeedback, trackUsage, getRecentFeedback } from "../services/ai/feedbackService";
+import { getDashboardMetrics, getMetricsByCategory, getTrends, getAgentAdoption, getTopPerformingTemplates, getKnowledgeBaseMetrics } from "../services/ai/analyticsService";
 
 export const aiRouter = router({
   // Knowledge Base Management
@@ -750,6 +752,205 @@ export const aiRouter = router({
 
         await refreshKnowledgeIndex(orgResult[0]!.id);
         return { success: true };
+      }),
+  }),
+
+  // Feedback endpoints
+  feedback: router({
+    submit: protectedProcedure
+      .input(z.object({
+        interactionId: z.number(),
+        rating: z.enum(["positive", "negative"]),
+        wasUsed: z.boolean().optional(),
+        wasEdited: z.boolean().optional(),
+        originalResponse: z.string().optional(),
+        finalResponse: z.string().optional(),
+        category: z.string().optional(),
+        tone: z.string().optional(),
+        comment: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        return submitFeedback({
+          organizationId: orgResult[0]!.id,
+          interactionId: input.interactionId,
+          agentId: ctx.user.id,
+          rating: input.rating,
+          wasUsed: input.wasUsed,
+          wasEdited: input.wasEdited,
+          originalResponse: input.originalResponse,
+          finalResponse: input.finalResponse,
+          category: input.category,
+          tone: input.tone,
+          comment: input.comment,
+        });
+      }),
+
+    trackUsage: protectedProcedure
+      .input(z.object({
+        interactionId: z.number(),
+        wasUsed: z.boolean(),
+        wasEdited: z.boolean(),
+        originalResponse: z.string().optional(),
+        finalResponse: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        return trackUsage({
+          organizationId: orgResult[0]!.id,
+          interactionId: input.interactionId,
+          agentId: ctx.user.id,
+          wasUsed: input.wasUsed,
+          wasEdited: input.wasEdited,
+          originalResponse: input.originalResponse,
+          finalResponse: input.finalResponse,
+        });
+      }),
+
+    recent: protectedProcedure
+      .input(z.object({ limit: z.number().min(1).max(100).optional() }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        return getRecentFeedback(orgResult[0]!.id, input.limit || 50);
+      }),
+  }),
+
+  // Analytics endpoints
+  analytics: router({
+    dashboard: protectedProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        const dateRange = input.startDate && input.endDate ? {
+          startDate: new Date(input.startDate),
+          endDate: new Date(input.endDate),
+        } : undefined;
+
+        return getDashboardMetrics(orgResult[0]!.id, dateRange);
+      }),
+
+    trends: protectedProcedure
+      .input(z.object({
+        startDate: z.string(),
+        endDate: z.string(),
+        granularity: z.enum(["day", "week", "month"]).optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        return getTrends(
+          orgResult[0]!.id,
+          { startDate: new Date(input.startDate), endDate: new Date(input.endDate) },
+          input.granularity || "day"
+        );
+      }),
+
+    byCategory: protectedProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        const dateRange = input.startDate && input.endDate ? {
+          startDate: new Date(input.startDate),
+          endDate: new Date(input.endDate),
+        } : undefined;
+
+        return getMetricsByCategory(orgResult[0]!.id, dateRange);
+      }),
+
+    agentAdoption: protectedProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        const dateRange = input.startDate && input.endDate ? {
+          startDate: new Date(input.startDate),
+          endDate: new Date(input.endDate),
+        } : undefined;
+
+        return getAgentAdoption(orgResult[0]!.id, dateRange);
+      }),
+
+    topTemplates: protectedProcedure
+      .input(z.object({ limit: z.number().min(1).max(20).optional() }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        return getTopPerformingTemplates(orgResult[0]!.id, input.limit || 10);
+      }),
+
+    knowledgeBase: protectedProcedure
+      .query(async ({ ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        const { organizations } = await import("../../drizzle/schema");
+        const orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) throw new Error("Organization not found");
+
+        return getKnowledgeBaseMetrics(orgResult[0]!.id);
       }),
   }),
 });
