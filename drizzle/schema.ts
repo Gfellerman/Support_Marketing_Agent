@@ -192,6 +192,14 @@ export const tickets = mysqlTable("tickets", {
   firstResponseAt: timestamp("firstResponseAt"),
   resolvedAt: timestamp("resolvedAt"),
   closedAt: timestamp("closedAt"),
+  // AI metadata fields
+  aiCategory: varchar("aiCategory", { length: 50 }),
+  aiPriority: mysqlEnum("aiPriority", ["low", "medium", "high", "urgent"]),
+  aiSentiment: mysqlEnum("aiSentiment", ["positive", "neutral", "negative", "angry"]),
+  aiSentimentScore: decimal("aiSentimentScore", { precision: 4, scale: 3 }),
+  aiConfidence: decimal("aiConfidence", { precision: 4, scale: 3 }),
+  aiClassifiedAt: timestamp("aiClassifiedAt"),
+  aiUrgencyIndicators: json("aiUrgencyIndicators").$type<string[]>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -347,3 +355,29 @@ export const aiSettings = mysqlTable("aiSettings", {
 
 export type AISettings = typeof aiSettings.$inferSelect;
 export type InsertAISettings = typeof aiSettings.$inferInsert;
+
+
+
+/**
+ * AI Interactions Log - Track AI usage for analytics and improvement
+ */
+export const aiInteractions = mysqlTable("aiInteractions", {
+  id: int("id").autoincrement().primaryKey(),
+  organizationId: int("organizationId").notNull(),
+  ticketId: int("ticketId"),
+  interactionType: mysqlEnum("interactionType", ["classification", "sentiment", "response", "auto_reply"]).notNull(),
+  modelUsed: varchar("modelUsed", { length: 100 }).notNull(),
+  inputTokens: int("inputTokens"),
+  outputTokens: int("outputTokens"),
+  latencyMs: int("latencyMs"),
+  confidenceScore: decimal("confidenceScore", { precision: 4, scale: 3 }),
+  wasUsed: boolean("wasUsed").default(false), // Did agent use the AI suggestion?
+  feedback: mysqlEnum("feedback", ["positive", "negative", "edited"]),
+  inputSummary: text("inputSummary"), // Truncated input for debugging
+  outputSummary: text("outputSummary"), // Truncated output for debugging
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AIInteraction = typeof aiInteractions.$inferSelect;
+export type InsertAIInteraction = typeof aiInteractions.$inferInsert;

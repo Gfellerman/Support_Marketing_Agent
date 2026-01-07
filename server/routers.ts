@@ -9,6 +9,7 @@ import { campaignsRouter } from './routers/campaigns';
 import { workflowsRouter } from "./routers/workflows";
 import { templatesRouter } from "./routers/templates";
 import { aiRouter } from "./routers/ai";
+import { aiClassificationRouter } from "./routers/aiClassification";
 import { contactsRouter } from "./routers/contacts";
 import { contactsImportExportRouter } from "./routers/contactsImportExport";
 import { seedDemoData, clearDemoData } from "./seeders/demoData";
@@ -76,6 +77,7 @@ export const appRouter = router({
   workflows: workflowsRouter,
   templates: templatesRouter,
   ai: aiRouter,
+  aiClassification: aiClassificationRouter,
   contacts: contactsRouter,
   contactsImportExport: contactsImportExportRouter,
 
