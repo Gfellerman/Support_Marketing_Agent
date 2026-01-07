@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +8,11 @@ import { Plus, Ticket as TicketIcon, Mail, MessageSquare, Phone, Sparkles } from
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { AIAssistDialog } from "@/components/AIAssistDialog";
+import { AIClassificationBadge } from "@/components/ai";
 import { toast } from "sonner";
 
 export default function Tickets() {
+  const [, setLocation] = useLocation();
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "pending" | "resolved" | "closed">("all");
   const { data: tickets, isLoading } = trpc.tickets.list.useQuery({ status: statusFilter });
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
@@ -202,11 +205,28 @@ export default function Tickets() {
                               <Sparkles className="h-4 w-4 mr-2 text-purple-600" />
                               AI Assist
                             </Button>
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setLocation(`/tickets/${ticket.id}`)}
+                            >
                               View Ticket
                             </Button>
                           </div>
                         </div>
+
+                        {/* AI Classification */}
+                        {((ticket as any).aiCategory || (ticket as any).aiPriority || (ticket as any).aiSentiment) && (
+                          <div className="mt-2 mb-2">
+                            <AIClassificationBadge
+                              category={(ticket as any).aiCategory}
+                              priority={(ticket as any).aiPriority}
+                              sentiment={(ticket as any).aiSentiment}
+                              confidence={(ticket as any).aiConfidence ? parseFloat((ticket as any).aiConfidence) : null}
+                              compact
+                            />
+                          </div>
+                        )}
 
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>Created: {timeAgo}</span>

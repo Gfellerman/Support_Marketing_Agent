@@ -20,6 +20,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import AISettings from "./pages/AISettings";
+import TicketDetail from "./pages/TicketDetail";
 
 function Router() {
   return (
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/workflows/builder/:id?" component={WorkflowBuilder} />
       <Route path="/workflows/templates" component={TemplateGallery} />
       <Route path="/tickets" component={Tickets} />
+      <Route path="/tickets/:id" component={TicketDetail} />
       <Route path="/orders" component={Orders} />
       <Route path="/integrations" component={Integrations} />
       <Route path="/analytics" component={Analytics} />
