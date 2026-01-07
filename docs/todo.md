@@ -171,7 +171,8 @@
 
 ## Remaining High Priority Tasks
 
-### Subscription & Billing (Week 1-2)
+### Subscription & Billing (Week 1-2) ⭐ NEXT PRIORITY
+> **Note:** Stripe API keys are configured and ready for implementation
 - [ ] Stripe SDK integration
 - [ ] Tiered pricing (Free, Starter, Growth, Pro, Enterprise)
 - [ ] Checkout session and customer portal
