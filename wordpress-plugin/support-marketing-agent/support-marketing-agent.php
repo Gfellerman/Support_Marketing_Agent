@@ -65,6 +65,9 @@ final class Support_Marketing_Agent {
         require_once SMA_PLUGIN_DIR . 'includes/class-sma-webhooks.php';
         require_once SMA_PLUGIN_DIR . 'includes/class-sma-woocommerce.php';
         require_once SMA_PLUGIN_DIR . 'includes/class-sma-email-marketing.php';
+        require_once SMA_PLUGIN_DIR . 'includes/class-sma-knowledge-base.php';
+        require_once SMA_PLUGIN_DIR . 'includes/class-sma-onboarding.php';
+        require_once SMA_PLUGIN_DIR . 'includes/class-sma-dashboard-widget.php';
         require_once SMA_PLUGIN_DIR . 'admin/class-sma-admin.php';
         require_once SMA_PLUGIN_DIR . 'public/class-sma-public.php';
     }
@@ -89,6 +92,15 @@ final class Support_Marketing_Agent {
         
         // Email marketing
         SMA_Email_Marketing::get_instance();
+        
+        // Knowledge base
+        SMA_Knowledge_Base::get_instance();
+        
+        // Onboarding wizard
+        SMA_Onboarding::get_instance();
+        
+        // Dashboard widget
+        SMA_Dashboard_Widget::get_instance();
     }
 
     /**
