@@ -3,7 +3,15 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { aiKnowledge, tickets } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { classifyTicket, generateResponse, processTicketWithAI } from "../ai/agent";
+import { classifyTicket, generateResponse as legacyGenerateResponse, processTicketWithAI } from "../ai/agent";
+import { 
+  generateResponse as aiGenerateResponse, 
+  generateMultipleResponses, 
+  getQuickActions,
+  generateTemplateResponse,
+  type ResponseTone
+} from "../services/ai/responseGenerator";
+import { buildCustomerContext, buildOrderContext } from "../services/ai/contextBuilder";
 
 export const aiRouter = router({
   // Knowledge Base Management
@@ -411,5 +419,171 @@ export const aiRouter = router({
 
         return result;
       })
-  })
+  }),
+
+  // Response Generation (Phase 2)
+  responses: router({
+    // Generate single response with specified tone
+    generate: protectedProcedure
+      .input(z.object({
+        ticketId: z.string().optional(),
+        ticketSubject: z.string(),
+        ticketContent: z.string(),
+        tone: z.enum(['professional', 'friendly', 'empathetic']).optional(),
+        customerId: z.string().optional(),
+        orderNumber: z.string().optional(),
+        additionalContext: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        const org = orgResult[0]!;
+
+        // Build order context if order number provided
+        let orderContext;
+        if (input.orderNumber) {
+          orderContext = await buildOrderContext(input.orderNumber, org.id) || undefined;
+        }
+
+        const response = await aiGenerateResponse({
+          ticketId: input.ticketId,
+          ticketSubject: input.ticketSubject,
+          ticketContent: input.ticketContent,
+          organizationId: org.id,
+          organizationName: org.name,
+          tone: input.tone as ResponseTone,
+          customerId: input.customerId,
+          orderContext,
+          additionalContext: input.additionalContext,
+        });
+
+        return response;
+      }),
+
+    // Generate multiple responses in all tones
+    generateMultiple: protectedProcedure
+      .input(z.object({
+        ticketId: z.string().optional(),
+        ticketSubject: z.string(),
+        ticketContent: z.string(),
+        customerId: z.string().optional(),
+        orderNumber: z.string().optional(),
+        additionalContext: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        const org = orgResult[0]!;
+
+        // Build order context if order number provided
+        let orderContext;
+        if (input.orderNumber) {
+          orderContext = await buildOrderContext(input.orderNumber, org.id) || undefined;
+        }
+
+        const result = await generateMultipleResponses({
+          ticketId: input.ticketId,
+          ticketSubject: input.ticketSubject,
+          ticketContent: input.ticketContent,
+          organizationId: org.id,
+          organizationName: org.name,
+          customerId: input.customerId,
+          orderContext,
+          additionalContext: input.additionalContext,
+        });
+
+        return result;
+      }),
+
+    // Get quick actions based on ticket content (fast, no AI)
+    getQuickActions: protectedProcedure
+      .input(z.object({
+        ticketSubject: z.string(),
+        ticketContent: z.string(),
+      }))
+      .query(async ({ input }) => {
+        const result = await getQuickActions({
+          ticketSubject: input.ticketSubject,
+          ticketContent: input.ticketContent,
+        });
+        return result;
+      }),
+
+    // Get template-based response (instant, no AI)
+    getTemplateResponse: protectedProcedure
+      .input(z.object({
+        issueType: z.enum(['delayed', 'damaged', 'wrong_item', 'missing_item', 'refund_request', 'cancellation', 'tracking', 'delivery_issue', 'return_request']),
+        tone: z.enum(['professional', 'friendly', 'empathetic']),
+        orderNumber: z.string().optional(),
+        customerName: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        const org = orgResult[0]!;
+
+        // Build order context if order number provided
+        let orderContext;
+        if (input.orderNumber) {
+          orderContext = await buildOrderContext(input.orderNumber, org.id) || undefined;
+        }
+
+        const response = generateTemplateResponse(
+          input.issueType,
+          input.tone,
+          orderContext || undefined,
+          input.customerName
+        );
+
+        return response;
+      }),
+
+    // Get customer context for display
+    getCustomerContext: protectedProcedure
+      .input(z.object({
+        customerId: z.string(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        const context = await buildCustomerContext(input.customerId, orgResult[0]!.id);
+        return context;
+      }),
+  }),
 });
