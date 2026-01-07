@@ -12,6 +12,9 @@ import {
   type ResponseTone
 } from "../services/ai/responseGenerator";
 import { buildCustomerContext, buildOrderContext } from "../services/ai/contextBuilder";
+import { knowledgeBaseService, findRelevantKnowledge } from "../services/ai/knowledgeBase";
+import { searchKnowledge, refreshKnowledgeIndex } from "../services/ai/vectorStore";
+import { generateRAGResponse, generateMultipleRAGResponses, buildRAGContext } from "../services/ai/ragService";
 
 export const aiRouter = router({
   // Knowledge Base Management
@@ -584,6 +587,169 @@ export const aiRouter = router({
 
         const context = await buildCustomerContext(input.customerId, orgResult[0]!.id);
         return context;
+      }),
+
+    // RAG-powered response generation with knowledge base context
+    generateWithKnowledge: protectedProcedure
+      .input(z.object({
+        ticketId: z.string().optional(),
+        ticketSubject: z.string(),
+        ticketContent: z.string(),
+        tone: z.enum(['professional', 'friendly', 'empathetic']).optional(),
+        customerId: z.string().optional(),
+        orderNumber: z.string().optional(),
+        additionalContext: z.string().optional(),
+        maxKnowledgeArticles: z.number().min(1).max(10).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        const org = orgResult[0]!;
+
+        const response = await generateRAGResponse({
+          ticketId: input.ticketId,
+          ticketSubject: input.ticketSubject,
+          ticketContent: input.ticketContent,
+          organizationId: org.id,
+          organizationName: org.name,
+          tone: input.tone,
+          customerId: input.customerId,
+          orderNumber: input.orderNumber,
+          additionalContext: input.additionalContext,
+          maxKnowledgeArticles: input.maxKnowledgeArticles,
+        });
+
+        return response;
+      }),
+
+    // RAG-powered multiple responses (all tones)
+    generateMultipleWithKnowledge: protectedProcedure
+      .input(z.object({
+        ticketId: z.string().optional(),
+        ticketSubject: z.string(),
+        ticketContent: z.string(),
+        customerId: z.string().optional(),
+        orderNumber: z.string().optional(),
+        additionalContext: z.string().optional(),
+        maxKnowledgeArticles: z.number().min(1).max(10).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        const org = orgResult[0]!;
+
+        const result = await generateMultipleRAGResponses({
+          ticketId: input.ticketId,
+          ticketSubject: input.ticketSubject,
+          ticketContent: input.ticketContent,
+          organizationId: org.id,
+          organizationName: org.name,
+          customerId: input.customerId,
+          orderNumber: input.orderNumber,
+          additionalContext: input.additionalContext,
+          maxKnowledgeArticles: input.maxKnowledgeArticles,
+        });
+
+        return result;
+      }),
+
+    // Search knowledge base
+    searchKnowledge: protectedProcedure
+      .input(z.object({
+        query: z.string(),
+        topK: z.number().min(1).max(10).optional(),
+        minScore: z.number().min(0).max(1).optional(),
+        category: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        const results = await findRelevantKnowledge(
+          orgResult[0]!.id,
+          input.query,
+          input.topK || 5
+        );
+
+        // Filter by category if provided
+        if (input.category) {
+          return results.filter(r => r.document.category === input.category);
+        }
+
+        return results;
+      }),
+
+    // Preview RAG context (what knowledge will be used)
+    previewRAGContext: protectedProcedure
+      .input(z.object({
+        ticketSubject: z.string(),
+        ticketContent: z.string(),
+        maxArticles: z.number().min(1).max(10).optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        const query = `${input.ticketSubject} ${input.ticketContent}`;
+        const context = await buildRAGContext(
+          orgResult[0]!.id,
+          query,
+          input.maxArticles || 3
+        );
+
+        return context;
+      }),
+
+    // Refresh knowledge base index
+    refreshKnowledgeIndex: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+
+        // Get organization
+        const { organizations } = await import("../../drizzle/schema");
+        let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
+        
+        if (orgResult.length === 0) {
+          throw new Error("Organization not found");
+        }
+
+        await refreshKnowledgeIndex(orgResult[0]!.id);
+        return { success: true };
       }),
   }),
 });

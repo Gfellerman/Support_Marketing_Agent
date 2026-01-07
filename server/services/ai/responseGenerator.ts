@@ -7,6 +7,7 @@ import { createCompletion, GROQ_MODELS } from "./groqService";
 import { buildResponseSystemPrompt, buildResponseUserPrompt, type ResponseGenerationContext, type OrderContext } from "./prompts/response";
 import { buildResponseContext } from "./contextBuilder";
 import { ORDER_RESPONSE_TEMPLATES, hydrateTemplate, getQuickActionsForIssue, type OrderIssueType } from "./prompts/orderResponses";
+import { searchKnowledge, type SearchResult } from "./vectorStore";
 
 export type ResponseTone = 'professional' | 'friendly' | 'empathetic';
 
@@ -14,12 +15,14 @@ export interface GenerateResponseInput {
   ticketId?: string;
   ticketSubject: string;
   ticketContent: string;
-  organizationId: string;
+  organizationId: string | number;
   organizationName?: string;
   tone?: ResponseTone;
   customerId?: string;
   orderContext?: OrderContext;
   additionalContext?: string;
+  useKnowledgeBase?: boolean; // Enable RAG integration
+  maxKnowledgeArticles?: number;
 }
 
 export interface GeneratedResponse {
@@ -29,6 +32,7 @@ export interface GeneratedResponse {
   suggestedActions: string[];
   tokensUsed: number;
   latencyMs: number;
+  knowledgeSourcesUsed?: number; // Number of KB articles used
 }
 
 export interface MultipleResponsesResult {
@@ -91,6 +95,19 @@ function getToneInstructions(tone: ResponseTone): string {
 }
 
 /**
+ * Format knowledge base articles for prompt injection
+ */
+function formatKnowledgeContext(articles: SearchResult[]): string {
+  if (articles.length === 0) return '';
+  
+  const formattedArticles = articles
+    .map((result, idx) => `### KB ${idx + 1}: ${result.document.title}\n${result.document.content}`)
+    .join('\n\n');
+  
+  return `\n\n## KNOWLEDGE BASE REFERENCE\nUse these verified knowledge base articles to inform your response:\n\n${formattedArticles}\n\n---\nIMPORTANT: Base your response on this knowledge. Do not make up policies or details.`;
+}
+
+/**
  * Extract suggested actions from AI response or context
  */
 function extractSuggestedActions(content: string, issueType: OrderIssueType | null): string[] {
@@ -119,6 +136,7 @@ function extractSuggestedActions(content: string, issueType: OrderIssueType | nu
  */
 export async function generateResponse(input: GenerateResponseInput): Promise<GeneratedResponse> {
   const tone = input.tone || 'professional';
+  const orgId = typeof input.organizationId === 'string' ? parseInt(input.organizationId, 10) : input.organizationId;
   
   // Build context
   let context: ResponseGenerationContext = {
@@ -127,7 +145,7 @@ export async function generateResponse(input: GenerateResponseInput): Promise<Ge
   
   // Enrich with ticket context if ticketId provided
   if (input.ticketId) {
-    const ticketContext = await buildResponseContext(input.ticketId, input.organizationId);
+    const ticketContext = await buildResponseContext(input.ticketId, String(input.organizationId));
     context = { ...context, ...ticketContext };
   }
   
@@ -136,9 +154,30 @@ export async function generateResponse(input: GenerateResponseInput): Promise<Ge
     context.recentOrders = [input.orderContext];
   }
   
+  // Fetch relevant knowledge base articles if enabled
+  let knowledgeArticles: SearchResult[] = [];
+  let knowledgeContext = '';
+  
+  if (input.useKnowledgeBase !== false) {
+    try {
+      const searchQuery = `${input.ticketSubject} ${input.ticketContent}`;
+      knowledgeArticles = await searchKnowledge(
+        orgId,
+        searchQuery,
+        input.maxKnowledgeArticles || 3,
+        0.15 // minimum relevance threshold
+      );
+      knowledgeContext = formatKnowledgeContext(knowledgeArticles);
+    } catch (error) {
+      console.error('Error fetching knowledge base:', error);
+      // Continue without knowledge context
+    }
+  }
+  
   // Build prompts
   let systemPrompt = buildResponseSystemPrompt(context);
   systemPrompt += getToneInstructions(tone);
+  systemPrompt += knowledgeContext;
   
   const userPrompt = buildResponseUserPrompt(
     input.ticketSubject,
@@ -160,13 +199,20 @@ export async function generateResponse(input: GenerateResponseInput): Promise<Ge
   const issueType = detectOrderIssue(input.ticketContent);
   const suggestedActions = extractSuggestedActions(result.content, issueType);
   
+  // Boost confidence if knowledge base was used
+  let confidence = 0.85;
+  if (knowledgeArticles.length > 0) {
+    confidence = Math.min(0.95, 0.85 + (knowledgeArticles.length * 0.03));
+  }
+  
   return {
     content: result.content.trim(),
     tone,
-    confidence: 0.85, // Could be calculated based on context richness
+    confidence,
     suggestedActions,
     tokensUsed: result.usage.totalTokens,
     latencyMs: result.latencyMs,
+    knowledgeSourcesUsed: knowledgeArticles.length,
   };
 }
 
