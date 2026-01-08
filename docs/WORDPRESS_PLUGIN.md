@@ -1,497 +1,131 @@
 # WordPress Plugin Documentation
 
-> **Support Marketing Agent WordPress Plugin**  
-> Version: 1.0.0 | Status: 100% Complete
+## Overview
 
----
+The **Support Marketing Agent** WordPress plugin seamless integrates your WordPress/WooCommerce site with the Support Marketing Agent SaaS platform. It provides a unified solution for customer support, email marketing, and e-commerce data synchronization.
 
-## 📋 Table of Contents
+## Features
 
-1. [Installation](#installation)
-2. [Configuration](#configuration)
-3. [Shortcodes Reference](#shortcodes-reference)
-4. [Gutenberg Blocks](#gutenberg-blocks)
-5. [WooCommerce Integration](#woocommerce-integration)
-6. [Email Marketing](#email-marketing)
-7. [Knowledge Base](#knowledge-base)
-8. [API Reference](#api-reference)
-9. [Troubleshooting](#troubleshooting)
+### 1. 🤖 AI-Powered Helpdesk Widget
+- **Live Chat & Ticket Support**: Adds a floating chat widget to your site.
+- **AI Responses**: Automatically suggests answers to common queries (powered by the main platform).
+- **Context-Aware**: Agents can see customer details and order history directly in the chat context.
+- **Customizable**: Configure position, colors, and greeting messages to match your brand.
 
----
+### 2. 🛍️ WooCommerce Integration
+- **Real-time Order Sync**: Automatically syncs new orders and status updates to the platform.
+- **Customer Sync**: Syncs customer profiles, billing/shipping details, and lifetime value metrics.
+- **Bulk Synchronization**: Tools to import historical orders and customers.
+- **Order Lookup**: Search for orders directly within the plugin admin or helpdesk context.
 
-## Installation
+### 3. 📧 Email Marketing Tools
+- **Signup Forms**: Customizable newsletter subscription forms.
+- **Popups & Slide-ins**: trigger-based lead capture forms (exit intent, time delay, scroll).
+- **Gutenberg Blocks**: Native blocks for easy insertion of forms into posts/pages.
+- **Shortcodes**: Flexible shortcodes for placing forms anywhere in your theme.
 
-### Manual Installation
+### 4. 📚 Knowledge Base
+- **Smart Search**: Integrate your platform's knowledge base into your WordPress site.
+- **Shortcodes**: Display search bars or article lists.
 
-1. Download the plugin from the releases page
-2. Upload to `/wp-content/plugins/support-marketing-agent/`
-3. Activate in WordPress Admin > Plugins
-4. Navigate to **SMA Settings** to configure
+## Installation & Configuration
 
-### WordPress.org Installation
+1.  **Install the Plugin**: Upload the `support-marketing-agent` folder to your `wp-content/plugins/` directory or zip it and upload via the WordPress admin.
+2.  **Activate**: Go to **Plugins** and activate "Support Marketing Agent".
+3.  **Configure API**:
+    -   Go to **Support Agent > Settings**.
+    -   Enter your **API Key** (obtainable from your Support Marketing Agent platform dashboard).
+    -   Click **Save Settings**.
+    -   Use the "Test Connection" button to verify connectivity.
 
-1. Go to Plugins > Add New
-2. Search for "Support Marketing Agent"
-3. Click Install Now, then Activate
-4. Run the onboarding wizard
+### Advanced Configuration
 
-### Requirements
-
-- WordPress 5.8+
-- PHP 7.4+
-- WooCommerce 6.0+ (optional, for e-commerce features)
-
----
-
-## Configuration
-
-### Initial Setup (Onboarding Wizard)
-
-The plugin includes a 5-step onboarding wizard:
-
-1. **API Key** - Enter your Support Marketing Agent API key
-2. **Widget Settings** - Configure chat widget color and position
-3. **WooCommerce** - Enable order/customer sync (if WooCommerce active)
-4. **Email Marketing** - Set up email capture forms
-5. **Complete** - Review settings and finish setup
-
-### Settings Page
-
-Navigate to **SMA > Settings** for:
-
-| Setting | Description |
-|---------|-------------|
-| API Key | Your platform API key |
-| Widget Position | Bottom-right or bottom-left |
-| Primary Color | Widget accent color |
-| Webhook URL | Auto-generated URL for platform events |
-
-### API Key Setup
+The API URL defaults to the production SaaS platform. For development or self-hosted instances, you can override this in your `wp-config.php`:
 
 ```php
-// API keys are stored securely in WordPress options
-update_option('sma_api_key', 'your-api-key');
+define('SMA_API_URL', 'https://your-custom-api-url.com');
 ```
 
----
+## Shortcodes
 
-## Shortcodes Reference
+The plugin provides several shortcodes to embed functionality directly into your posts, pages, or widgets.
 
-### Helpdesk Shortcodes
+### 1. Ticket Submission Form (`[sma_ticket_form]`)
+Displays a full support ticket submission form.
 
-#### `[sma_ticket_form]`
+**Attributes:**
+- `department`: (string) Pre-select a department (e.g., 'general', 'billing', 'technical'). If omitted, shows a dropdown.
+- `show_order_field`: (true/false) Whether to show an optional Order ID field. Defaults to 'true'.
+- `title`: (string) The title displayed above the form. Defaults to "Submit a Support Request".
 
-Displays a ticket submission form.
-
+**Example:**
+```shortcode
+[sma_ticket_form department="billing" title="Contact Billing Support"]
 ```
-[sma_ticket_form title="Contact Support" show_order="true"]
+
+### 2. Email Capture Form (`[sma_email_form]`)
+Displays a newsletter subscription form. Also aliased as `[sma_subscribe_form]`.
+
+**Attributes:**
+- `title`: (string) Form heading. Defaults to "Subscribe to our newsletter".
+- `description`: (string) Text below the heading. Defaults to "Get the latest updates and offers."
+- `button_text`: (string) Submit button label. Defaults to "Subscribe".
+- `show_name`: (yes/no) Whether to include a name input field. Defaults to "yes".
+- `list_id`: (string) Optional. The specific list ID to subscribe users to.
+- `style`: (string) CSS style variant. Options: 'inline', 'boxed', 'minimal'. Defaults to 'inline'.
+- `class`: (string) Custom CSS class for the wrapper.
+
+**Example:**
+```shortcode
+[sma_email_form style="minimal" button_text="Join" show_name="no"]
 ```
 
-| Attribute | Default | Description |
-|-----------|---------|-------------|
-| `title` | "Submit a Ticket" | Form heading |
-| `show_order` | `true` | Show order ID field |
-| `show_category` | `true` | Show category dropdown |
-| `class` | "" | Additional CSS classes |
+### 3. Ticket Status Checker (`[sma_ticket_status]`)
+Displays a simple form for users to check the status of a ticket using their Ticket ID and Email.
 
-#### `[sma_ticket_status]`
-
-Ticket status checker for customers.
-
-```
+**Example:**
+```shortcode
 [sma_ticket_status]
 ```
 
-### Email Marketing Shortcodes
+### 4. Chat Widget Placeholder (`[sma_chat_widget]`)
+Normally the chat widget floats, but this shortcode allows for inline placement (if supported by your theme/css).
 
-#### `[sma_email_form]`
-
-Email signup form.
-
-```
-[sma_email_form style="boxed" button_text="Subscribe" show_name="true"]
-```
-
-| Attribute | Default | Description |
-|-----------|---------|-------------|
-| `style` | `inline` | Form style: `inline`, `boxed`, `minimal` |
-| `button_text` | "Subscribe" | Submit button text |
-| `show_name` | `false` | Show name field |
-| `list_id` | "" | Target email list ID |
-| `placeholder` | "Enter your email" | Email field placeholder |
-
-### Knowledge Base Shortcodes
-
-#### `[sma_knowledge_base]`
-
-Full knowledge base display.
-
-```
-[sma_knowledge_base show_search="true" show_categories="true" columns="3"]
-```
-
-| Attribute | Default | Description |
-|-----------|---------|-------------|
-| `show_search` | `true` | Show search bar |
-| `show_categories` | `true` | Show category filters |
-| `columns` | `3` | Article grid columns (2-4) |
-| `limit` | `12` | Articles per page |
-
-#### `[sma_kb_search]`
-
-Standalone knowledge base search.
-
-```
-[sma_kb_search placeholder="Search articles..." ai_suggestions="true"]
-```
-
-#### `[sma_faq]`
-
-FAQ accordion component.
-
-```
-[sma_faq category="shipping" style="minimal"]
-```
-
-| Attribute | Default | Description |
-|-----------|---------|-------------|
-| `category` | "" | Filter by category slug |
-| `style` | `default` | Style: `default`, `minimal`, `boxed` |
-| `limit` | `10` | Number of FAQs to show |
-
----
+**Attributes:**
+- `position`: (string) 'inline' is the default and primary use case here.
 
 ## Gutenberg Blocks
 
-All shortcodes are available as Gutenberg blocks:
-
-### Available Blocks
-
-- **SMA Ticket Form** - Helpdesk ticket submission
-- **SMA Email Signup** - Email capture form
-- **SMA Knowledge Base** - Full KB display
-- **SMA FAQ** - FAQ accordion
-
-### Block Settings
-
-Each block includes a settings panel with:
-- Visual style options
-- Field visibility toggles
-- Color customization
-- Preview mode
-
-### Example Usage
-
-```jsx
-// blocks/email-form/edit.js
-import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
-
-const Edit = ({ attributes, setAttributes }) => {
-  return (
-    <>
-      <InspectorControls>
-        <PanelBody title="Form Settings">
-          <SelectControl
-            label="Style"
-            value={attributes.style}
-            options={[
-              { label: 'Inline', value: 'inline' },
-              { label: 'Boxed', value: 'boxed' },
-            ]}
-            onChange={(style) => setAttributes({ style })}
-          />
-        </PanelBody>
-      </InspectorControls>
-      {/* Block preview */}
-    </>
-  );
-};
-```
-
----
-
-## WooCommerce Integration
-
-### Auto-Detection
-
-The plugin automatically detects WooCommerce and enables e-commerce features.
-
-### Order Sync
-
-Orders are synced to the platform on:
-- Order creation
-- Status changes
-- Order updates
-
-```php
-// Sync triggers
-add_action('woocommerce_new_order', [$this, 'sync_order']);
-add_action('woocommerce_order_status_changed', [$this, 'sync_order_status']);
-add_action('woocommerce_update_order', [$this, 'sync_order']);
-```
-
-### Customer Sync
-
-Customer data synced includes:
-- Name, email, phone
-- Billing address
-- Shipping address
-- Order count
-- Total spend
-
-### Bulk Sync
-
-Sync existing data from **SMA > WooCommerce**:
-
-1. Click "Sync All Orders" for order history
-2. Click "Sync All Customers" for customer database
-3. Progress is shown in real-time
-
-### Order Lookup
-
-Support agents can look up orders directly:
-
-```php
-// AJAX endpoint
-wp_ajax_sma_lookup_order
-
-// Parameters
-$order_id = sanitize_text_field($_POST['order_id']);
-$email = sanitize_email($_POST['email']);
-```
-
-### Settings
-
-| Option | Description |
-|--------|-------------|
-| Enable Order Sync | Auto-sync new orders |
-| Enable Customer Sync | Auto-sync customer data |
-| Include Order Context | Add order details to tickets |
-
----
-
-## Email Marketing
-
-### Inline Forms
-
-Basic email capture:
-
-```
-[sma_email_form style="inline"]
-```
-
-### Popup Forms
-
-Configure in **SMA > Email Marketing**:
-
-| Setting | Options |
-|---------|--------|
-| Trigger Type | Time delay, Scroll %, Exit intent |
-| Delay | 5-60 seconds |
-| Scroll Depth | 25%, 50%, 75% |
-| Cookie Duration | 1-30 days |
-| Position | Center modal, Slide-in |
-
-### Slide-in Forms
-
-Less intrusive alternative to popups:
-
-```php
-// Settings
-'slidein_enabled' => true,
-'slidein_position' => 'bottom-right', // or 'bottom-left'
-'slidein_trigger' => 'scroll',
-'slidein_scroll_depth' => 50,
-```
-
-### Cookie Management
-
-```javascript
-// Cookie set on form dismiss/submit
-SMA_EmailForms.setCookie('sma_popup_dismissed', '1', 7); // 7 days
-```
-
----
-
-## Knowledge Base
-
-### Features
-
-- **Semantic Search** - AI-powered article search
-- **Category Filtering** - Browse by topic
-- **AI Suggestions** - Smart answer recommendations
-- **Modal Viewer** - Read articles without page reload
-
-### Search Endpoint
-
-```php
-// REST endpoint
-GET /wp-json/sma/v1/kb/search?q=shipping+issue
-
-// Response
-{
-  "articles": [
-    {
-      "id": 123,
-      "title": "Shipping Policies",
-      "excerpt": "...",
-      "relevance": 0.92
-    }
-  ]
-}
-```
-
-### AI Suggestions
-
-```php
-// REST endpoint
-POST /wp-json/sma/v1/ai/suggest
-{
-  "query": "Where is my order?"
-}
-
-// Response
-{
-  "suggestion": "Based on your question about order tracking...",
-  "articles": [...],
-  "confidence": 0.87
-}
-```
-
----
-
-## API Reference
-
-### REST Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/sma/v1/tickets` | POST | Create ticket |
-| `/sma/v1/tickets/{id}/status` | GET | Get ticket status |
-| `/sma/v1/subscribe` | POST | Email subscription |
-| `/sma/v1/unsubscribe` | POST | Email unsubscription |
-| `/sma/v1/kb/search` | GET | Search knowledge base |
-| `/sma/v1/kb/articles` | GET | List articles |
-| `/sma/v1/kb/articles/{id}` | GET | Get article |
-| `/sma/v1/ai/suggest` | POST | AI suggestion |
-| `/sma/v1/webhook` | POST | Platform webhooks |
-
-### PHP API Client
-
-```php
-// Get API instance
-$api = SMA_API::get_instance();
-
-// Create ticket
-$response = $api->create_ticket([
-  'subject' => 'Order Question',
-  'message' => 'Where is my order #12345?',
-  'email' => 'customer@example.com',
-  'order_id' => '12345'
-]);
-
-// Check ticket status
-$status = $api->get_ticket_status($ticket_id);
-
-// Sync order
-$api->sync_order($order_id);
-```
-
-### JavaScript API
-
-```javascript
-// Chat widget
-SMA_Widget.open();
-SMA_Widget.close();
-SMA_Widget.setUser({ email: 'user@example.com', name: 'John' });
-
-// Email forms
-SMA_EmailForms.showPopup();
-SMA_EmailForms.hidePopup();
-
-// Knowledge base
-SMA_KnowledgeBase.search('query');
-SMA_KnowledgeBase.openArticle(articleId);
-```
-
-### Hooks & Filters
-
-```php
-// Actions
-do_action('sma_ticket_created', $ticket_id, $data);
-do_action('sma_order_synced', $order_id);
-do_action('sma_subscriber_added', $email);
-
-// Filters
-apply_filters('sma_ticket_data', $data);
-apply_filters('sma_widget_settings', $settings);
-apply_filters('sma_email_form_fields', $fields);
-```
-
----
+The plugin registers the following Gutenberg blocks:
+
+*   **Ticket Form (`sma/ticket-form`)**: Visual block for the ticket submission form.
+*   **Email Capture (`sma/email-capture`)**: Visual block for the newsletter signup form.
+
+## API & Hooks
+
+### Actions
+
+*   `sma_contact_subscribed`
+    *   **Description**: Fired when a user successfully subscribes via any form.
+    *   **Arguments**: `$email` (string), `$data` (array - name, list_id, source, etc.)
+*   `sma_contact_unsubscribed`
+    *   **Description**: Fired when a user unsubscribes.
+    *   **Arguments**: `$email` (string)
+*   `sma_order_synced`
+    *   **Description**: Fired after an order is successfully synced to the platform.
+    *   **Arguments**: `$order_id` (int), `$response` (array - API response)
+*   `sma_order_status_synced`
+    *   **Description**: Fired after an order status change is synced.
+    *   **Arguments**: `$order_id` (int), `$old_status` (string), `$new_status` (string)
+
+### Filters
+
+*   `sma_admin_settings_tabs`
+    *   **Description**: Modify the tabs on the plugin settings page.
+    *   **Arguments**: `$tabs` (array)
 
 ## Troubleshooting
 
-### Common Issues
-
-#### API Connection Failed
-
-1. Verify API key in **SMA > Settings**
-2. Check server can reach `api.supportmarketingagent.com`
-3. Review error logs in **SMA > Debug**
-
-#### WooCommerce Not Detected
-
-1. Ensure WooCommerce is installed and activated
-2. Deactivate and reactivate SMA plugin
-3. Check for plugin conflicts
-
-#### Widget Not Showing
-
-1. Check widget is enabled in settings
-2. Verify no JavaScript errors in console
-3. Check theme compatibility
-
-#### Forms Not Submitting
-
-1. Verify REST API is accessible
-2. Check for caching plugin conflicts
-3. Review browser console for errors
-
-### Debug Mode
-
-Enable debugging in `wp-config.php`:
-
-```php
-define('SMA_DEBUG', true);
-```
-
-Logs are saved to `/wp-content/debug.log`
-
-### Support
-
-- Documentation: https://docs.supportmarketingagent.com/wordpress
-- Support: support@supportmarketingagent.com
-- GitHub Issues: https://github.com/supportmarketingagent/wordpress-plugin/issues
-
----
-
-## Changelog
-
-### 1.0.0 (January 7, 2026)
-
-- Initial release
-- Helpdesk widget with ticket submission
-- WooCommerce order/customer sync
-- Email marketing forms (inline, popup, slide-in)
-- Knowledge base with AI search
-- FAQ accordion component
-- Onboarding wizard
-- Gutenberg blocks
-- Admin dashboard widget
-
----
-
-**Plugin Location:** `/wordpress-plugin/support-marketing-agent/`  
-**Documentation Last Updated:** January 7, 2026
+-   **Connection Failed**: Ensure your API key is correct and your server can make outbound requests to `api.supportmarketingagent.com`.
+-   **Sync Issues**: Check the "WooCommerce > Status > Logs" for any error messages related to `support-marketing-agent`.
+-   **Widget Not Appearing**: Ensure `wp_footer()` is called in your theme's footer.php and the widget is enabled in Settings.
