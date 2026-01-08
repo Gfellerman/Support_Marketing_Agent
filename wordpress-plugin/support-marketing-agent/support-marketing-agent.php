@@ -80,9 +80,7 @@ final class Support_Marketing_Agent {
         add_action('init', [$this, 'register_blocks']);
         
         // Initialize components
-        if (is_admin()) {
-            new SMA_Admin();
-        }
+        new SMA_Admin();
         new SMA_Public();
         new SMA_Shortcodes();
         new SMA_Webhooks();

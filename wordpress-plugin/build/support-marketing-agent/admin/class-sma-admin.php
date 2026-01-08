@@ -19,9 +19,28 @@ class SMA_Admin {
      */
     public function __construct() {
         add_action('admin_menu', [$this, 'add_menu']);
+        add_action('admin_bar_menu', [$this, 'add_admin_bar_menu'], 100);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
         add_action('wp_ajax_sma_test_connection', [$this, 'ajax_test_connection']);
+    }
+
+    /**
+     * Add admin bar menu
+     */
+    public function add_admin_bar_menu($admin_bar) {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        $admin_bar->add_menu([
+            'id'    => 'sma-admin-bar',
+            'title' => __('Support Agent', 'support-marketing-agent'),
+            'href'  => admin_url('admin.php?page=sma-dashboard'),
+            'meta'  => [
+                'title' => __('Support Agent', 'support-marketing-agent'),
+            ],
+        ]);
     }
 
     /**
