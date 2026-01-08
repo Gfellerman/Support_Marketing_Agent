@@ -1,0 +1,127 @@
+/**
+ * Dashboard Widget Styles
+ * @package Support_Marketing_Agent
+ */
+
+#sma_dashboard_widget .inside {
+    padding: 0;
+    margin: 0;
+}
+
+.sma-widget-content {
+    padding: 12px;
+}
+
+.sma-widget-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.sma-widget-stat {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.sma-widget-stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.sma-widget-stat-label {
+    display: block;
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+}
+
+.sma-widget-recent {
+    margin-bottom: 16px;
+}
+
+.sma-widget-recent h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: #374151;
+}
+
+.sma-widget-tickets {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sma-widget-ticket {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sma-widget-ticket:last-child {
+    border-bottom: none;
+}
+
+.sma-ticket-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sma-status-open {
+    background: #ef4444;
+}
+
+.sma-status-pending {
+    background: #f59e0b;
+}
+
+.sma-status-resolved {
+    background: #10b981;
+}
+
+.sma-ticket-subject {
+    flex: 1;
+    font-size: 13px;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sma-ticket-time {
+    font-size: 11px;
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.sma-widget-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.sma-widget-actions .button {
+    flex: 1;
+    text-align: center;
+}
+
+.sma-widget-not-connected {
+    text-align: center;
+    padding: 20px 12px;
+}
+
+.sma-widget-not-connected p {
+    margin: 0 0 12px;
+    color: #6b7280;
+}

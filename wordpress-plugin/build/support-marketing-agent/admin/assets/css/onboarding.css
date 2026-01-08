@@ -1,0 +1,347 @@
+/**
+ * Onboarding Wizard Styles
+ * @package Support_Marketing_Agent
+ */
+
+.sma-onboarding-wrap {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.sma-onboarding-container {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden;
+}
+
+.sma-onboarding-header {
+    padding: 2rem;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sma-onboarding-logo {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+}
+
+.sma-onboarding-logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+.sma-onboarding-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem;
+}
+
+.sma-onboarding-header p {
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Progress Steps */
+.sma-onboarding-progress {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 2rem;
+    background: #f9fafb;
+}
+
+.sma-progress-step {
+    display: flex;
+    align-items: center;
+}
+
+.sma-progress-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #d1d5db;
+    transition: background 0.3s;
+}
+
+.sma-progress-step.active .sma-progress-dot,
+.sma-progress-step.completed .sma-progress-dot {
+    background: #4f46e5;
+}
+
+.sma-progress-line {
+    width: 40px;
+    height: 2px;
+    background: #d1d5db;
+    margin: 0 0.5rem;
+}
+
+.sma-progress-step.completed + .sma-progress-step .sma-progress-line {
+    background: #4f46e5;
+}
+
+/* Step Content */
+.sma-onboarding-content {
+    padding: 2rem;
+}
+
+.sma-step {
+    display: none;
+}
+
+.sma-step.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.sma-step-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 0.5rem;
+}
+
+.sma-step-description {
+    color: #6b7280;
+    margin: 0 0 1.5rem;
+}
+
+/* Form Elements */
+.sma-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.sma-form-group label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.sma-form-group input[type="text"],
+.sma-form-group input[type="password"],
+.sma-form-group input[type="url"],
+.sma-form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.sma-form-group input:focus,
+.sma-form-group select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.sma-form-hint {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+}
+
+/* Checkbox & Toggle */
+.sma-toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.sma-toggle {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.sma-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.sma-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.sma-toggle-slider:before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 2px;
+    bottom: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.sma-toggle input:checked + .sma-toggle-slider {
+    background: #4f46e5;
+}
+
+.sma-toggle input:checked + .sma-toggle-slider:before {
+    transform: translateX(24px);
+}
+
+.sma-toggle-label {
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Color Picker */
+.sma-color-picker {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.sma-color-option {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.sma-color-option:hover {
+    transform: scale(1.1);
+}
+
+.sma-color-option.active {
+    border-color: #111827;
+}
+
+/* Buttons */
+.sma-onboarding-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+.sma-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+}
+
+.sma-btn-primary {
+    background: #4f46e5;
+    color: white;
+}
+
+.sma-btn-primary:hover {
+    background: #4338ca;
+}
+
+.sma-btn-secondary {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.sma-btn-secondary:hover {
+    background: #f9fafb;
+}
+
+.sma-btn-link {
+    background: transparent;
+    color: #6b7280;
+    padding: 0.75rem 0.5rem;
+}
+
+.sma-btn-link:hover {
+    color: #4f46e5;
+}
+
+.sma-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Success State */
+.sma-success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sma-success-icon svg {
+    width: 40px;
+    height: 40px;
+    color: white;
+}
+
+.sma-step-complete {
+    text-align: center;
+}
+
+.sma-step-complete h2 {
+    font-size: 1.5rem;
+    color: #111827;
+    margin: 0 0 0.5rem;
+}
+
+.sma-step-complete p {
+    color: #6b7280;
+    margin: 0 0 1.5rem;
+}
+
+/* Features List */
+.sma-features-list {
+    text-align: left;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.sma-features-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    color: #374151;
+}
+
+.sma-features-list svg {
+    width: 20px;
+    height: 20px;
+    color: #10b981;
+    flex-shrink: 0;
+}

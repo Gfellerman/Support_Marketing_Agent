@@ -1,20 +1,34 @@
 #!/bin/bash
 
-# Define paths
-PLUGIN_DIR="wordpress-plugin/support-marketing-agent"
-BUILD_DIR="wordpress-plugin/build"
-ZIP_NAME="support-marketing-agent.zip"
-TARGET_FOLDER_NAME="Support Marketing Agent"
+# Build script for Support Marketing Agent WordPress Plugin
 
-# Clean previous build
-rm -rf "$BUILD_DIR"
-mkdir -p "$BUILD_DIR/$TARGET_FOLDER_NAME"
+PLUGIN_SLUG="support-marketing-agent"
+BUILD_DIR="build"
+SOURCE_DIR="support-marketing-agent"
+ZIP_NAME="$PLUGIN_SLUG.zip"
 
-# Copy files
-cp -r "$PLUGIN_DIR"/* "$BUILD_DIR/$TARGET_FOLDER_NAME/"
+echo "🏗️  Building $PLUGIN_SLUG..."
 
-# Zip the folder
-cd "$BUILD_DIR"
-zip -r "$ZIP_NAME" "$TARGET_FOLDER_NAME"
+# 1. Clean previous build
+echo "🧹 Cleaning previous build..."
+rm -rf "wordpress-plugin/$BUILD_DIR"
+mkdir -p "wordpress-plugin/$BUILD_DIR"
 
-echo "Build complete: $BUILD_DIR/$ZIP_NAME"
+# 2. Copy files to a temporary staging area
+echo "📂 Copying files..."
+mkdir -p "wordpress-plugin/$BUILD_DIR/$PLUGIN_SLUG"
+cp -r "wordpress-plugin/$SOURCE_DIR/"* "wordpress-plugin/$BUILD_DIR/$PLUGIN_SLUG/"
+
+# 3. Remove development files (if any)
+# (e.g., .git, .DS_Store, tests, etc.)
+echo "🗑️  Removing dev files..."
+find "wordpress-plugin/$BUILD_DIR/$PLUGIN_SLUG" -name ".DS_Store" -delete
+find "wordpress-plugin/$BUILD_DIR/$PLUGIN_SLUG" -name ".git*" -exec rm -rf {} +
+find "wordpress-plugin/$BUILD_DIR/$PLUGIN_SLUG" -name "*.log" -delete
+
+# 4. Zip the folder
+echo "📦 Zipping..."
+cd "wordpress-plugin/$BUILD_DIR"
+zip -r "$ZIP_NAME" "$PLUGIN_SLUG"
+
+echo "✅ Build complete! Artifact located at: wordpress-plugin/$BUILD_DIR/$ZIP_NAME"

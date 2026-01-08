@@ -4,10 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Settings as SettingsIcon, CreditCard, Users, Bell, Database, Download, Trash2, Loader2 } from "lucide-react";
+import { Settings as SettingsIcon, CreditCard, Users, Bell, Database, Download, Trash2, Loader2, Key } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { useState } from "react";
 
 export default function Settings() {
   return (
@@ -22,7 +23,7 @@ export default function Settings() {
       <Tabs defaultValue="general" className="space-y-6">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="subscription">Subscription</TabsTrigger>
+          <TabsTrigger value="license">License</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="demo-data">
@@ -78,113 +79,9 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Subscription Settings */}
-        <TabsContent value="subscription" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Plan</CardTitle>
-              <CardDescription>Manage your subscription and billing</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-2xl font-bold">Growth Plan</h3>
-                    <Badge className="bg-blue-100 text-blue-700">Active</Badge>
-                  </div>
-                  <p className="text-muted-foreground">$99/month • Renews on Feb 15, 2025</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-3xl font-bold">$99</p>
-                  <p className="text-sm text-muted-foreground">per month</p>
-                </div>
-              </div>
-
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Contacts</span>
-                  <span className="font-medium">2,847 / 10,000</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Emails Sent</span>
-                  <span className="font-medium">45,230 / 100,000</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Active Workflows</span>
-                  <span className="font-medium">3 / 20</span>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button>Upgrade Plan</Button>
-                <Button variant="outline">View Billing History</Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Available Plans</CardTitle>
-              <CardDescription>Choose the plan that fits your needs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  {
-                    name: "Starter",
-                    price: "$29",
-                    contacts: "1,000",
-                    emails: "10,000",
-                    workflows: "5",
-                  },
-                  {
-                    name: "Growth",
-                    price: "$99",
-                    contacts: "10,000",
-                    emails: "100,000",
-                    workflows: "20",
-                    current: true,
-                  },
-                  {
-                    name: "Pro",
-                    price: "$299",
-                    contacts: "50,000",
-                    emails: "500,000",
-                    workflows: "Unlimited",
-                  },
-                ].map((plan) => (
-                  <div
-                    key={plan.name}
-                    className={`p-4 border rounded-lg ${
-                      plan.current ? "border-primary bg-primary/5" : ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold">{plan.name}</h3>
-                      {plan.current && (
-                        <Badge variant="secondary" className="text-xs">
-                          Current
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-2xl font-bold mb-4">{plan.price}/mo</p>
-                    <ul className="space-y-2 text-sm text-muted-foreground mb-4">
-                      <li>• {plan.contacts} contacts</li>
-                      <li>• {plan.emails} emails/month</li>
-                      <li>• {plan.workflows} workflows</li>
-                    </ul>
-                    <Button
-                      variant={plan.current ? "outline" : "default"}
-                      className="w-full"
-                      disabled={plan.current}
-                    >
-                      {plan.current ? "Current Plan" : "Select Plan"}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        {/* License Settings - Replaces Subscription */}
+        <TabsContent value="license" className="space-y-6">
+          <LicenseTab />
         </TabsContent>
 
         {/* Team Settings */}
@@ -277,6 +174,85 @@ export default function Settings() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function LicenseTab() {
+  const [key, setKey] = useState("");
+  const utils = trpc.useUtils();
+
+  const { data: status, isLoading } = trpc.license.getStatus.useQuery();
+
+  const activateMutation = trpc.license.activate.useMutation({
+    onSuccess: (result) => {
+      if (result.valid) {
+        toast.success("License activated successfully!");
+        setKey("");
+        utils.license.getStatus.invalidate();
+      } else {
+        toast.error("Invalid license key");
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to activate license", { description: error.message });
+    }
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Software License</CardTitle>
+        <CardDescription>Manage your software license key</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+          <div className="flex items-center gap-3">
+            <Key className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="font-medium">Status</p>
+              <p className="text-sm text-muted-foreground">
+                {isLoading ? "Checking..." : (status?.active ? "Active License" : "No Active License")}
+              </p>
+            </div>
+          </div>
+          {status?.active && (
+            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">
+              Active
+            </Badge>
+          )}
+          {!status?.active && !isLoading && (
+            <Badge variant="destructive">Inactive</Badge>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="license-key">License Key</Label>
+            <div className="flex gap-2">
+              <Input
+                id="license-key"
+                placeholder="Enter your license key (e.g., SMA-XXXX-XXXX)"
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+              />
+              <Button
+                onClick={() => activateMutation.mutate({ key })}
+                disabled={!key || activateMutation.isPending}
+              >
+                {activateMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  "Activate"
+                )}
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Your license key is provided by your distributor. Contact support if you need assistance.
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
