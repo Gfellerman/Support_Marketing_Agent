@@ -12,10 +12,12 @@ import { aiRouter } from "./routers/ai";
 import { aiClassificationRouter } from "./routers/aiClassification";
 import { contactsRouter } from "./routers/contacts";
 import { contactsImportExportRouter } from "./routers/contactsImportExport";
+import { licenseRouter } from "./routers/license";
 import { seedDemoData, clearDemoData } from "./seeders/demoData";
 
 export const appRouter = router({
   system: systemRouter,
+  license: licenseRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

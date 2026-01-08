@@ -1,0 +1,315 @@
+/**
+ * Support Marketing Agent - Admin Styles
+ * @package Support_Marketing_Agent
+ */
+
+/* Variables */
+:root {
+    --sma-primary: #4f46e5;
+    --sma-primary-dark: #4338ca;
+    --sma-success: #10b981;
+    --sma-warning: #f59e0b;
+    --sma-error: #ef4444;
+    --sma-text: #1f2937;
+    --sma-text-muted: #6b7280;
+    --sma-border: #e5e7eb;
+    --sma-bg: #f9fafb;
+}
+
+/* Admin Wrapper */
+.sma-admin-wrap {
+    max-width: 1200px;
+    margin: 20px 20px 20px 0;
+}
+
+.sma-admin-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--sma-text);
+    margin-bottom: 24px;
+}
+
+.sma-admin-title .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--sma-primary);
+}
+
+/* Notices */
+.sma-notice {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.sma-notice-warning {
+    background: #fef3c7;
+    border-left: 4px solid var(--sma-warning);
+}
+
+.sma-notice p {
+    margin: 0;
+}
+
+/* Stats Grid */
+.sma-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.sma-stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sma-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--sma-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sma-stat-icon::before {
+    font-family: dashicons;
+    font-size: 24px;
+    color: var(--sma-primary);
+}
+
+.sma-icon-tickets::before { content: "\f463"; }
+.sma-icon-resolved::before { content: "\f147"; color: var(--sma-success); }
+.sma-icon-response::before { content: "\f469"; color: var(--sma-warning); }
+.sma-icon-ai::before { content: "\f339"; color: var(--sma-primary); }
+
+.sma-stat-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--sma-text);
+    line-height: 1.2;
+}
+
+.sma-stat-label {
+    font-size: 13px;
+    color: var(--sma-text-muted);
+}
+
+/* Dashboard Grid */
+.sma-dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 900px) {
+    .sma-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sma-dashboard-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sma-dashboard-card h2 {
+    margin: 0 0 20px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.sma-dashboard-card h3 {
+    margin: 24px 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sma-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tables */
+.sma-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sma-table th,
+.sma-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--sma-border);
+}
+
+.sma-table th {
+    font-weight: 600;
+    color: var(--sma-text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.sma-empty {
+    color: var(--sma-text-muted);
+    text-align: center;
+    padding: 24px;
+}
+
+.sma-empty-row {
+    text-align: center;
+    color: var(--sma-text-muted);
+}
+
+/* Badges */
+.sma-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.sma-badge-open { background: #dbeafe; color: #1e40af; }
+.sma-badge-pending { background: #fef3c7; color: #92400e; }
+.sma-badge-resolved { background: #d1fae5; color: #065f46; }
+.sma-badge-closed { background: #e5e7eb; color: #374151; }
+
+.sma-badge-priority-low { background: #e5e7eb; color: #374151; }
+.sma-badge-priority-normal { background: #dbeafe; color: #1e40af; }
+.sma-badge-priority-high { background: #fef3c7; color: #92400e; }
+.sma-badge-priority-urgent { background: #fee2e2; color: #991b1b; }
+
+/* Links */
+.sma-link {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--sma-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.sma-link:hover {
+    text-decoration: underline;
+}
+
+/* Quick Actions */
+.sma-quick-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.sma-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--sma-bg);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--sma-text);
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.sma-action-btn:hover {
+    background: var(--sma-border);
+    color: var(--sma-text);
+}
+
+.sma-shortcodes-list code {
+    display: block;
+    padding: 10px 14px;
+    background: var(--sma-bg);
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.sma-shortcodes-list .description {
+    margin: 0 0 16px;
+    font-size: 12px;
+}
+
+/* Settings */
+.sma-settings-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sma-settings-section h2 {
+    margin: 0 0 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--sma-border);
+}
+
+.sma-settings-section h3 {
+    margin: 24px 0 8px;
+    font-size: 14px;
+}
+
+.sma-webhook-url {
+    display: block;
+    padding: 12px 16px;
+    background: var(--sma-bg);
+    border-radius: 8px;
+    word-break: break-all;
+}
+
+.sma-connection-status {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 6px;
+}
+
+.sma-connection-status.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.sma-connection-status.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Tickets Page */
+.sma-tickets-filters {
+    margin-bottom: 20px;
+}
+
+.sma-tickets-filters form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.sma-tickets-table .column-id { width: 60px; }
+.sma-tickets-table .column-status,
+.sma-tickets-table .column-priority { width: 100px; }
+.sma-tickets-table .column-date { width: 120px; }
+.sma-tickets-table .column-actions { width: 80px; }
+
+.sma-ai-tag {
+    color: var(--sma-primary);
+}
+
+.sma-pagination {
+    margin-top: 20px;
+}
