@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import trackingRouter from "../email/tracking";
 import webhooksRouter from "../email/webhooks";
+import apiRouter from "../rest-api";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -43,6 +44,10 @@ async function startServer() {
   
   // Email webhooks
   app.use("/api/webhooks", webhooksRouter);
+
+  // REST API for WordPress Plugin
+  app.use("/api", apiRouter);
+
   // tRPC API
   app.use(
     "/api/trpc",
