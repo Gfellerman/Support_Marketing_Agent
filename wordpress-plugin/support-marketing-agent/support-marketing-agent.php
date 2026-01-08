@@ -3,7 +3,7 @@
  * Plugin Name: Support Marketing Agent
  * Plugin URI: https://supportmarketingagent.com
  * Description: AI-powered helpdesk and email marketing integration. One plugin for support tickets, live chat, and customer engagement.
- * Version: 1.0.0
+ * Version: 2.01
  * Author: Support Marketing Agent
  * Author URI: https://supportmarketingagent.com
  * License: GPL-2.0+
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('SMA_VERSION', '1.0.0');
+define('SMA_VERSION', '2.01');
 define('SMA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SMA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('SMA_PLUGIN_BASENAME', plugin_basename(__FILE__));
