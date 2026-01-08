@@ -31,4 +31,10 @@ echo "📦 Zipping..."
 cd "wordpress-plugin/$BUILD_DIR"
 zip -r "$ZIP_NAME" "$PLUGIN_SLUG"
 
-echo "✅ Build complete! Artifact located at: wordpress-plugin/$BUILD_DIR/$ZIP_NAME"
+# 5. Copy to Root
+echo "🚚 Copying artifact to repository root..."
+cp "$ZIP_NAME" ../../"$ZIP_NAME"
+
+echo "✅ Build complete!"
+echo "  - Build Artifact: wordpress-plugin/$BUILD_DIR/$ZIP_NAME"
+echo "  - Root Artifact:  $ZIP_NAME"
