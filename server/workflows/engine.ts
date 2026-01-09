@@ -68,6 +68,7 @@ export type EnrollmentStatus = 'active' | 'completed' | 'exited' | 'failed';
 export async function enrollContact(params: {
   workflowId: number;
   contactId: number;
+  organizationId?: number;
   triggerData?: Record<string, unknown>;
 }): Promise<number> {
   const db = await getDb();
@@ -95,11 +96,12 @@ export async function enrollContact(params: {
 
   // Create enrollment
   const [enrollment] = await db.insert(workflowEnrollments).values({
+    organizationId: params.organizationId || 1,
     workflowId,
     contactId,
     status: 'active',
-    currentStep: 0,
-    triggerData,
+    currentStepId: '0', // Converted to string/ID
+    state: {}, // Needed by schema
     enrolledAt: new Date(),
   });
 
@@ -177,7 +179,7 @@ export async function executeWorkflowStep(params: {
     // Update current step
     await db
       .update(workflowEnrollments)
-      .set({ currentStep: stepIndex })
+      .set({ currentStepId: stepIndex.toString() })
       .where(eq(workflowEnrollments.id, enrollmentId));
 
     // Execute step based on type

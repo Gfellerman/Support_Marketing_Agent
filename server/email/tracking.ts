@@ -59,7 +59,7 @@ router.get('/open/:campaignId/:contactId/:token', async (req: Request, res: Resp
         entityType: 'campaign',
         entityId: parseInt(campaignId),
         contactId: parseInt(contactId),
-        metadata: {
+        eventData: {
           userAgent: req.headers['user-agent'],
           ipAddress: req.ip,
         },
@@ -109,7 +109,7 @@ router.get('/click/:campaignId/:contactId/:token', async (req: Request, res: Res
         entityType: 'campaign',
         entityId: parseInt(campaignId),
         contactId: parseInt(contactId),
-        metadata: {
+        eventData: {
           url: decodedUrl,
           userAgent: req.headers['user-agent'],
           ipAddress: req.ip,

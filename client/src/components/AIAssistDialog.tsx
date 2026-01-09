@@ -61,8 +61,8 @@ export function AIAssistDialog({
         classification: classificationResult,
       });
 
-      setSuggestedResponse(responseResult.response);
-      setEditedResponse(responseResult.response);
+      setSuggestedResponse(responseResult.content);
+      setEditedResponse(responseResult.content);
     } catch (error) {
       console.error("AI processing error:", error);
     } finally {

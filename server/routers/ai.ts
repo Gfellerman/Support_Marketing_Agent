@@ -35,11 +35,12 @@ export const aiRouter = router({
         let orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
         
         if (orgResult.length === 0) {
-          await db.insert(organizations).values({
+          const [newOrg] = await db.insert(organizations).values({
             name: `${ctx.user.name}'s Organization`,
             slug: `org-${ctx.user.id}`,
             ownerId: ctx.user.id,
-          });
+          }).$returningId();
+          // Re-fetch to get full object if needed, or just use ID
           orgResult = await db.select().from(organizations).where(eq(organizations.ownerId, ctx.user.id)).limit(1);
         }
 
@@ -384,13 +385,13 @@ export const aiRouter = router({
 
         const organizationId = orgResult[0]!.id;
 
-        const response = await generateResponse(
-          input.ticketId,
-          organizationId,
-          input.subject,
-          input.message,
-          input.classification
-        );
+        const response = await aiGenerateResponse({
+          ticketId: input.ticketId.toString(),
+          organizationId: organizationId,
+          ticketSubject: input.subject,
+          ticketContent: input.message,
+          // We map classification to minimal needed or ignore if not used by new generator
+        });
 
         return response;
       }),
@@ -456,7 +457,7 @@ export const aiRouter = router({
         // Build order context if order number provided
         let orderContext;
         if (input.orderNumber) {
-          orderContext = await buildOrderContext(input.orderNumber, org.id) || undefined;
+          orderContext = await buildOrderContext(input.orderNumber, org.id.toString()) || undefined;
         }
 
         const response = await aiGenerateResponse({
@@ -501,7 +502,7 @@ export const aiRouter = router({
         // Build order context if order number provided
         let orderContext;
         if (input.orderNumber) {
-          orderContext = await buildOrderContext(input.orderNumber, org.id) || undefined;
+          orderContext = await buildOrderContext(input.orderNumber, org.id.toString()) || undefined;
         }
 
         const result = await generateMultipleResponses({
@@ -557,7 +558,7 @@ export const aiRouter = router({
         // Build order context if order number provided
         let orderContext;
         if (input.orderNumber) {
-          orderContext = await buildOrderContext(input.orderNumber, org.id) || undefined;
+          orderContext = await buildOrderContext(input.orderNumber, org.id.toString()) || undefined;
         }
 
         const response = generateTemplateResponse(
@@ -587,7 +588,7 @@ export const aiRouter = router({
           throw new Error("Organization not found");
         }
 
-        const context = await buildCustomerContext(input.customerId, orgResult[0]!.id);
+        const context = await buildCustomerContext(input.customerId, orgResult[0]!.id.toString());
         return context;
       }),
 

@@ -264,12 +264,12 @@ export async function processTicketWithAI(
       .limit(10);
 
     const conversationHistory = messages.reverse().map((msg) => ({
-      role: (msg.senderType === "contact" ? "user" : "agent") as "user" | "agent",
+      role: (msg.senderType === "customer" ? "user" : "agent") as "user" | "agent",
       content: msg.content
     }));
 
     // Get the latest customer message
-    const latestMessage = messages.find((m) => m.senderType === "contact");
+    const latestMessage = messages.find((m) => m.senderType === "customer");
     if (!latestMessage) {
       throw new Error("No customer message found");
     }

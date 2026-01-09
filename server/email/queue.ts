@@ -97,7 +97,7 @@ const emailWorker = queueEnabled && redisConnection ? new Worker<SendEmailJobDat
           entityType: 'campaign',
           entityId: campaignId,
           contactId,
-          metadata: {
+          eventData: {
             messageId: result.messageId,
             recipient: recipient.email,
           },
@@ -121,7 +121,7 @@ const emailWorker = queueEnabled && redisConnection ? new Worker<SendEmailJobDat
           entityType: 'campaign',
           entityId: campaignId,
           contactId,
-          metadata: {
+          eventData: {
             error: error.message,
             recipient: recipient.email,
           },

@@ -152,12 +152,16 @@ export const aiClassificationRouter = router({
 
       // Update ticket with AI metadata if requested
       if (input.updateTicket) {
+        // Map sentiment 'angry' to 'frustrated' for schema compatibility
+        let sentiment: any = classification.sentiment;
+        if (sentiment === 'angry') sentiment = 'frustrated';
+
         await db
           .update(tickets)
           .set({
             aiCategory: classification.category,
             aiPriority: classification.priority,
-            aiSentiment: classification.sentiment,
+            aiSentiment: sentiment,
             aiSentimentScore: classification.sentimentScore.toString(),
             aiConfidence: classification.confidence.toString(),
             aiClassifiedAt: new Date(),
@@ -290,12 +294,16 @@ export const aiClassificationRouter = router({
 
           // Update ticket if requested
           if (input.updateTickets) {
+            // Map sentiment 'angry' to 'frustrated' for schema compatibility
+            let sentiment: any = classification.sentiment;
+            if (sentiment === 'angry') sentiment = 'frustrated';
+
             await db
               .update(tickets)
               .set({
                 aiCategory: classification.category,
                 aiPriority: classification.priority,
-                aiSentiment: classification.sentiment,
+                aiSentiment: sentiment,
                 aiSentimentScore: classification.sentimentScore.toString(),
                 aiConfidence: classification.confidence.toString(),
                 aiClassifiedAt: new Date(),

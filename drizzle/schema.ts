@@ -178,6 +178,8 @@ export const orders = mysqlTable("orders", {
   billingAddress: json("billingAddress").$type<any>(),
   trackingNumber: varchar("trackingNumber", { length: 255 }),
   trackingUrl: text("trackingUrl"),
+  carrier: varchar("carrier", { length: 100 }),
+  estimatedDelivery: timestamp("estimatedDelivery"),
   notes: text("notes"),
   source: varchar("source", { length: 100 }),
   orderedAt: timestamp("orderedAt").notNull(),
@@ -189,6 +191,84 @@ export const orders = mysqlTable("orders", {
 
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = typeof orders.$inferInsert;
+
+/**
+ * Integrations - External platform connections
+ */
+export const integrations = mysqlTable("integrations", {
+  id: int("id").autoincrement().primaryKey(),
+  organizationId: int("organizationId").notNull(),
+  type: varchar("type", { length: 50 }).notNull(), // 'shopify', 'woocommerce'
+  status: mysqlEnum("status", ["active", "inactive", "error"]).default("active").notNull(),
+  config: json("config").$type<any>(),
+  credentials: json("credentials").$type<any>(),
+  lastSyncAt: timestamp("lastSyncAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Integration = typeof integrations.$inferSelect;
+export type InsertIntegration = typeof integrations.$inferInsert;
+
+/**
+ * Analytics Events - Detailed tracking
+ */
+export const analyticsEvents = mysqlTable("analyticsEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  organizationId: int("organizationId").notNull(),
+  eventType: varchar("eventType", { length: 100 }).notNull(),
+  entityType: varchar("entityType", { length: 100 }),
+  entityId: int("entityId"),
+  contactId: int("contactId"),
+  eventData: json("eventData").$type<any>(),
+  sessionId: varchar("sessionId", { length: 255 }),
+  userId: int("userId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+
+/**
+ * Workflow Enrollments - Tracking contacts in workflows
+ */
+export const workflowEnrollments = mysqlTable("workflowEnrollments", {
+  id: int("id").autoincrement().primaryKey(),
+  organizationId: int("organizationId").notNull(),
+  workflowId: int("workflowId").notNull(),
+  contactId: int("contactId").notNull(),
+  status: mysqlEnum("status", ["active", "completed", "cancelled", "failed", "exited"]).default("active").notNull(),
+  currentStepId: varchar("currentStepId", { length: 100 }),
+  state: json("state").$type<any>(),
+  enrolledAt: timestamp("enrolledAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type WorkflowEnrollment = typeof workflowEnrollments.$inferSelect;
+export type InsertWorkflowEnrollment = typeof workflowEnrollments.$inferInsert;
+
+/**
+ * Workflow Templates - Pre-built automation templates
+ */
+export const workflowTemplates = mysqlTable("workflowTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  organizationId: int("organizationId"),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  icon: varchar("icon", { length: 50 }),
+  triggerType: varchar("triggerType", { length: 50 }).notNull(),
+  steps: json("steps").$type<any[]>(),
+  category: varchar("category", { length: 100 }),
+  tags: json("tags").$type<string[]>(),
+  createdBy: int("createdBy"),
+  isSystem: boolean("isSystem").default(false),
+  isPublic: boolean("isPublic").default(false),
+  usageCount: int("usageCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WorkflowTemplate = typeof workflowTemplates.$inferSelect;
+export type InsertWorkflowTemplate = typeof workflowTemplates.$inferInsert;
 
 /**
  * Support Tickets - Helpdesk system
@@ -209,8 +289,11 @@ export const tickets = mysqlTable("tickets", {
   aiCategory: varchar("aiCategory", { length: 100 }),
   aiPriority: mysqlEnum("aiPriority", ["low", "medium", "high", "urgent"]),
   aiSentiment: mysqlEnum("aiSentiment", ["positive", "neutral", "negative", "frustrated"]),
+  aiSentimentScore: decimal("aiSentimentScore", { precision: 4, scale: 3 }),
   aiConfidence: decimal("aiConfidence", { precision: 4, scale: 3 }),
   aiSuggestedActions: json("aiSuggestedActions").$type<string[]>(),
+  aiUrgencyIndicators: json("aiUrgencyIndicators").$type<string[]>(),
+  aiClassifiedAt: timestamp("aiClassifiedAt"),
   firstResponseAt: timestamp("firstResponseAt"),
   resolvedAt: timestamp("resolvedAt"),
   tags: json("tags").$type<string[]>(),

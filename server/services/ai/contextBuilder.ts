@@ -69,7 +69,7 @@ export async function buildCustomerContext(
     const customerResults = await db.select().from(contacts)
       .where(and(
         eq(contacts.id, parseInt(customerId)),
-        eq(contacts.organizationId, organizationId)
+        eq(contacts.organizationId, parseInt(organizationId))
       ))
       .limit(1);
 
@@ -80,16 +80,16 @@ export async function buildCustomerContext(
     const customerOrders = await db.select().from(orders)
       .where(and(
         eq(orders.contactId, parseInt(customerId)),
-        eq(orders.organizationId, organizationId)
+        eq(orders.organizationId, parseInt(organizationId))
       ))
-      .orderBy(desc(orders.createdAt))
+      .orderBy(desc(orders.orderedAt))
       .limit(10);
 
     // Fetch tickets (last 5)
     const customerTickets = await db.select().from(tickets)
       .where(and(
         eq(tickets.contactId, parseInt(customerId)),
-        eq(tickets.organizationId, organizationId)
+        eq(tickets.organizationId, parseInt(organizationId))
       ))
       .orderBy(desc(tickets.createdAt))
       .limit(5);
@@ -98,9 +98,9 @@ export async function buildCustomerContext(
     const emails: any[] = [];
 
     // Calculate metrics
-    const totalValue = customerOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
+    const totalValue = customerOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
     const avgOrderValue = customerOrders.length > 0 ? totalValue / customerOrders.length : 0;
-    const lastOrderDate = customerOrders[0]?.createdAt;
+    const lastOrderDate = customerOrders[0]?.orderedAt;
     const daysSinceLastOrder = lastOrderDate 
       ? Math.floor((Date.now() - new Date(lastOrderDate).getTime()) / (1000 * 60 * 60 * 24))
       : -1;
@@ -132,13 +132,13 @@ export async function buildCustomerContext(
 
     // Build order contexts
     const orderContexts: OrderContext[] = customerOrders.map(o => ({
-      orderNumber: o.orderNumber || o.id,
+      orderNumber: o.orderNumber || String(o.id),
       status: o.status || 'unknown',
       trackingNumber: o.trackingNumber || undefined,
       carrier: o.carrier || undefined,
       estimatedDelivery: o.estimatedDelivery ? new Date(o.estimatedDelivery).toLocaleDateString() : undefined,
       items: o.items ? (typeof o.items === 'string' ? JSON.parse(o.items) : o.items) : undefined,
-      totalPrice: Number(o.totalAmount || 0),
+      totalPrice: Number(o.total || 0),
     }));
 
     // Build ticket summaries
@@ -148,7 +148,7 @@ export async function buildCustomerContext(
 
     return {
       customer: {
-        name: customer.name || undefined,
+        name: customer.firstName && customer.lastName ? `${customer.firstName} ${customer.lastName}` : customer.email,
         email: customer.email,
         totalOrders: valueMetrics.totalOrders,
         lifetimeValue: valueMetrics.lifetimeValue,
@@ -181,7 +181,7 @@ export async function buildResponseContext(
     const ticketResults = await db.select().from(tickets)
       .where(and(
         eq(tickets.id, parseInt(ticketId)),
-        eq(tickets.organizationId, organizationId)
+        eq(tickets.organizationId, parseInt(organizationId))
       ))
       .limit(1);
 
@@ -226,7 +226,7 @@ export async function buildOrderContext(
     const orderResults = await db.select().from(orders)
       .where(and(
         eq(orders.orderNumber, orderNumber),
-        eq(orders.organizationId, organizationId)
+        eq(orders.organizationId, parseInt(organizationId))
       ))
       .limit(1);
 
@@ -240,7 +240,7 @@ export async function buildOrderContext(
       carrier: order.carrier || undefined,
       estimatedDelivery: order.estimatedDelivery ? new Date(order.estimatedDelivery).toLocaleDateString() : undefined,
       items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : undefined,
-      totalPrice: Number(order.totalAmount || 0),
+      totalPrice: Number(order.total || 0),
     };
   } catch (error) {
     console.error('[ContextBuilder] Error building order context:', error);
