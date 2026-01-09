@@ -93,6 +93,10 @@ class SMA_Admin {
         register_setting('sma_settings', 'sma_api_key', [
             'sanitize_callback' => 'sanitize_text_field',
         ]);
+        register_setting('sma_settings', 'sma_api_url', [
+            'sanitize_callback' => 'esc_url_raw',
+            'default' => defined('SMA_DEFAULT_API_URL') ? SMA_DEFAULT_API_URL : 'https://api.supportmarketingagent.com',
+        ]);
 
         // Widget Settings
         register_setting('sma_settings', 'sma_widget_enabled', [
