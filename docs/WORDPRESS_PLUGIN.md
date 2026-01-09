@@ -34,13 +34,16 @@ The **Support Marketing Agent** WordPress plugin seamless integrates your WordPr
 2.  **Activate**: Go to **Plugins** and activate "Support Marketing Agent".
 3.  **Configure API**:
     -   Go to **Support Agent > Settings**.
-    -   Enter your **API Key** (obtainable from your Support Marketing Agent platform dashboard).
+    -   **API URL**: Enter the URL of your Support Marketing Agent server (e.g., `http://localhost:3000/api` for local development or your production URL).
+    -   **API Key**: Enter your API Key.
+        -   For **Local Development**: You can use any key starting with `SMA-` (e.g., `SMA-DEV-KEY`).
+        -   For **Production**: Obtain your key from the Support Marketing Agent platform dashboard.
     -   Click **Save Settings**.
     -   Use the "Test Connection" button to verify connectivity.
 
 ### Advanced Configuration
 
-The API URL defaults to the production SaaS platform. For development or self-hosted instances, you can override this in your `wp-config.php`:
+While the API URL can be configured in the settings page, you can also override it in your `wp-config.php` for consistency across environments:
 
 ```php
 define('SMA_API_URL', 'https://your-custom-api-url.com');
