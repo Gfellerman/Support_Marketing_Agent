@@ -1,5 +1,5 @@
 import { eq, desc, and, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { 
   InsertUser, 
@@ -18,16 +18,20 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
-let _db: ReturnType<typeof drizzle> | null = null;
+// Use specific type instead of ReturnType<typeof drizzle> to avoid overload mismatches
+let _db: MySql2Database<Record<string, unknown>> | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      const connection = await mysql.createConnection({
+      const pool = mysql.createPool({
         uri: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
+        ssl: { rejectUnauthorized: false },
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0
       });
-      _db = drizzle(connection);
+      _db = drizzle(pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
