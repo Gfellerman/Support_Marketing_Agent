@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ThumbsUp, ThumbsDown, Check, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
-import { trpc } from "../../_core/trpc";
+import { trpc } from "@/lib/trpc";
 
 interface AIFeedbackButtonsProps {
   interactionId: number;

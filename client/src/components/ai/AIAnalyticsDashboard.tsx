@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Progress } from "../ui/progress";
 import { Badge } from "../ui/badge";
-import { trpc } from "../../_core/trpc";
+import { trpc } from "@/lib/trpc";
 import { cn } from "../../lib/utils";
 
 interface MetricCardProps {
