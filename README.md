@@ -9,7 +9,7 @@
 
 ### ✅ Core Platform
 - **Headless Architecture** - Centralized control via React Web App.
-- **Licensing** - Distributor-based License Key system (Enterprise/Pro features).
+- **Licensing** - Distributor-based License Key system.
 - **Mobile Apps** - Native iOS and Android apps (via Capacitor).
 
 ### ✅ AI-Powered Helpdesk
@@ -67,15 +67,15 @@ npx cap open ios      # or android
 ### WordPress Plugin
 1.  Download `support-marketing-agent.zip` from the root of this repository.
 2.  Upload to your WordPress Admin > Plugins > Add New > Upload.
-3.  Activate and enter your License Key (or leave empty for Dev Enterprise mode).
+3.  Activate and configure your API URL (Railway) and Key.
 
 ---
 
 ## 📄 Documentation
 
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) - System design & Headless approach
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Railway deployment guide
 - [MOBILE_APP.md](docs/MOBILE_APP.md) - Mobile build guide
-- [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) - Current progress
 - [WORDPRESS_PLUGIN.md](docs/WORDPRESS_PLUGIN.md) - Plugin details
 
 ---
