@@ -128,7 +128,7 @@ function extractSuggestedActions(content: string, issueType: OrderIssueType | nu
   if (lowerContent.includes('escalate') || lowerContent.includes('supervisor')) actions.push('escalate');
   
   // Deduplicate
-  return [...new Set(actions)];
+  return Array.from(new Set(actions));
 }
 
 /**
@@ -182,7 +182,7 @@ export async function generateResponse(input: GenerateResponseInput): Promise<Ge
   const userPrompt = buildResponseUserPrompt(
     input.ticketSubject,
     input.ticketContent,
-    input.additionalContext
+    input.additionalContext ? [{ role: 'agent', content: input.additionalContext }] : []
   );
   
   // Generate response
@@ -236,8 +236,8 @@ export async function generateMultipleResponses(
   
   // Build context to check sentiment
   if (input.ticketId) {
-    const context = await buildResponseContext(input.ticketId, input.organizationId);
-    if (context.sentiment === 'negative' || context.sentiment === 'frustrated') {
+    const context = await buildResponseContext(input.ticketId, input.organizationId.toString());
+    if (context.sentiment === 'negative' || (context.sentiment as any) === 'frustrated') {
       primaryRecommendation = 'empathetic';
     } else if (context.customer?.isVip) {
       primaryRecommendation = 'friendly';
@@ -252,7 +252,7 @@ export async function generateMultipleResponses(
   }
   
   // Collect all quick actions
-  const quickActions = [...new Set(responses.flatMap(r => r.suggestedActions))];
+  const quickActions = Array.from(new Set(responses.flatMap(r => r.suggestedActions)));
   
   return {
     responses,

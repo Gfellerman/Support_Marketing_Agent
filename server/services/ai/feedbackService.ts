@@ -78,7 +78,7 @@ export async function submitFeedback(input: SubmitFeedbackInput): Promise<{ succ
     editDistance = calculateEditDistance(input.originalResponse, input.finalResponse);
   }
 
-  const result = await db.insert(aiFeedback).values({
+  const [result] = await db.insert(aiFeedback).values({
     organizationId: input.organizationId,
     interactionId: input.interactionId,
     agentId: input.agentId,
@@ -91,7 +91,7 @@ export async function submitFeedback(input: SubmitFeedbackInput): Promise<{ succ
     category: input.category,
     tone: input.tone,
     comment: input.comment,
-  });
+  }).$returningId();
 
   // Also update the aiInteractions table
   await db.update(aiInteractions)
@@ -101,7 +101,7 @@ export async function submitFeedback(input: SubmitFeedbackInput): Promise<{ succ
     })
     .where(eq(aiInteractions.id, input.interactionId));
 
-  return { success: true, feedbackId: Number(result.insertId) };
+  return { success: true, feedbackId: result.id };
 }
 
 /**

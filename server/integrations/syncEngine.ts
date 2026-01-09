@@ -75,13 +75,11 @@ function mapShopifyOrder(order: ShopifyOrder, organizationId: number, contactId:
   return {
     organizationId,
     contactId,
-    externalOrderId: order.id.toString(),
+    externalId: order.id.toString(),
     orderNumber: order.orderNumber.toString(),
-    platform: 'shopify' as const,
-    status: order.financialStatus,
-    financialStatus: order.financialStatus,
-    fulfillmentStatus: order.fulfillmentStatus || 'unfulfilled',
-    totalPrice: order.totalPrice,
+    source: 'shopify' as const,
+    status: order.financialStatus as any, // Cast to enum
+    total: order.totalPrice,
     currency: order.currency,
     items: order.lineItems.map(item => ({
       product_id: item.productId.toString(),
@@ -90,7 +88,7 @@ function mapShopifyOrder(order: ShopifyOrder, organizationId: number, contactId:
       quantity: item.quantity,
       price: parseFloat(item.price),
     })),
-    orderDate: new Date(order.createdAt),
+    orderedAt: new Date(order.createdAt),
   };
 }
 
@@ -101,13 +99,11 @@ function mapWooCommerceOrder(order: WooCommerceOrder, organizationId: number, co
   return {
     organizationId,
     contactId,
-    externalOrderId: order.id.toString(),
+    externalId: order.id.toString(),
     orderNumber: order.orderNumber,
-    platform: 'woocommerce' as const,
-    status: order.status,
-    financialStatus: order.status,
-    fulfillmentStatus: order.status === 'completed' ? 'fulfilled' : 'unfulfilled',
-    totalPrice: order.total,
+    source: 'woocommerce' as const,
+    status: order.status as any, // Cast to enum
+    total: order.total,
     currency: order.currency,
     items: order.lineItems.map(item => ({
       product_id: item.productId.toString(),
@@ -116,7 +112,7 @@ function mapWooCommerceOrder(order: WooCommerceOrder, organizationId: number, co
       quantity: item.quantity,
       price: item.price,
     })),
-    orderDate: new Date(order.dateCreated),
+    orderedAt: new Date(order.dateCreated),
   };
 }
 
@@ -355,7 +351,7 @@ export class SyncEngine {
               .where(
                 and(
                   eq(orders.organizationId, this.organizationId),
-                  eq(orders.externalOrderId, order.id.toString())
+                  eq(orders.externalId, order.id.toString())
                 )
               )
               .limit(1);
@@ -462,7 +458,7 @@ export class SyncEngine {
               .where(
                 and(
                   eq(orders.organizationId, this.organizationId),
-                  eq(orders.externalOrderId, order.id.toString())
+                  eq(orders.externalId, order.id.toString())
                 )
               )
               .limit(1);

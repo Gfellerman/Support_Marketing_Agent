@@ -1,5 +1,5 @@
 import express from "express";
-import { appRouter } from "../routers";
+import { appRouter } from "./routers";
 import { createContext } from "./_core/context";
 
 const apiRouter = express.Router();
@@ -40,7 +40,7 @@ apiRouter.get("/health", authenticateApiKey, (req, res) => {
 // Using tRPC caller would be ideal, but for simplicity in this bridge:
 apiRouter.get("/tickets", authenticateApiKey, async (req, res) => {
     try {
-        const caller = appRouter.createCaller(await createContext({ req, res }));
+        const caller = appRouter.createCaller(await createContext({ req, res, info: {} as any }));
         const result = await caller.tickets.list({ status: "all" });
         res.json(result);
     } catch (error) {

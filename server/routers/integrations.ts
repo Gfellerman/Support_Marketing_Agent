@@ -158,7 +158,7 @@ export const integrationsRouter = router({
         .insert(integrations)
         .values({
           organizationId,
-          platform: 'shopify',
+          type: 'shopify',
           credentials: {
             shop: input.shop,
             accessToken: tokenData.accessToken,
@@ -225,7 +225,7 @@ export const integrationsRouter = router({
         .insert(integrations)
         .values({
           organizationId,
-          platform: 'woocommerce',
+          type: 'woocommerce',
           credentials: {
             storeUrl: input.storeUrl,
             consumerKey: input.consumerKey,
@@ -292,13 +292,13 @@ export const integrationsRouter = router({
 
       let result;
 
-      if (integration.platform === 'shopify') {
+      if (integration.type === 'shopify') {
         const credentials = integration.credentials as any;
         result = await syncEngine.fullShopifySync(
           credentials.accessToken,
           credentials.shop
         );
-      } else if (integration.platform === 'woocommerce') {
+      } else if (integration.type === 'woocommerce') {
         const credentials = integration.credentials as any;
         result = await syncEngine.fullWooCommerceSync(
           credentials.storeUrl,

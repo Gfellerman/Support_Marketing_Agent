@@ -258,7 +258,7 @@ export default function TicketDetail() {
             ticketId={String(ticket.id)}
             ticketSubject={ticket.subject}
             ticketContent={ticket.message || ticket.subject}
-            customerId={ticket.contactId ? String(ticket.contactId) : undefined}
+            customerId={(ticket as any).contactId ? String((ticket as any).contactId) : undefined}
             onInsertResponse={handleInsertResponse}
             onSendResponse={handleSendResponse}
             useKnowledge={true}
@@ -269,7 +269,7 @@ export default function TicketDetail() {
         <div className="space-y-6">
           {/* Customer Context */}
           <CustomerContextCard 
-            customerId={ticket.contactId ? String(ticket.contactId) : null} 
+            customerId={(ticket as any).contactId ? String((ticket as any).contactId) : null}
           />
 
           {/* Ticket Info */}

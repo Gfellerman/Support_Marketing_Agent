@@ -131,7 +131,7 @@ async function processEvent(event: SendGridEvent): Promise<void> {
         entityType: 'campaign',
         entityId: campaignId,
         contactId,
-        metadata: {
+        eventData: {
           sendgridEventId: event.sg_event_id,
           sendgridMessageId: event.sg_message_id,
           email: event.email,

@@ -10,7 +10,10 @@ import {
   tickets,
   orders,
   integrations,
-  analyticsEvents
+  analyticsEvents,
+  workflowEnrollments,
+  workflowTemplates,
+  workflowEnrollments as enrollments, // Alias for backward compatibility if needed
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -158,7 +161,7 @@ export async function getOrdersByOrganization(organizationId: number, limit = 50
   
   return db.select().from(orders)
     .where(eq(orders.organizationId, organizationId))
-    .orderBy(desc(orders.orderDate))
+    .orderBy(desc(orders.orderedAt))
     .limit(limit);
 }
 

@@ -24,9 +24,11 @@ export async function createContext(
       if (decoded && decoded.id) {
          // Optionally fetch full user from DB if needed, or use decoded data
          const db = await getDb();
-         const dbUser = await db.select().from(users).where(eq(users.id, decoded.id)).limit(1);
-         if (dbUser.length > 0) {
-             user = dbUser[0];
+         if (db) {
+           const dbUser = await db.select().from(users).where(eq(users.id, decoded.id)).limit(1);
+           if (dbUser.length > 0) {
+               user = dbUser[0];
+           }
          }
       }
     }
