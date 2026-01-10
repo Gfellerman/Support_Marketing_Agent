@@ -72,6 +72,11 @@ export function serveStatic(app: Express) {
       ? path.resolve(currentDir, "../dist/public") // relative to server/
       : path.resolve(currentDir, "public"); // relative to dist/
 
+  // Debug logging for production path resolution
+  console.log(`[serveStatic] currentDir: ${currentDir}`);
+  console.log(`[serveStatic] distPath: ${distPath}`);
+  console.log(`[serveStatic] distPath exists: ${fs.existsSync(distPath)}`);
+
   if (!fs.existsSync(distPath)) {
     console.error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`

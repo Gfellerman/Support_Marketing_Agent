@@ -62,9 +62,13 @@ async function startServer() {
   }
 
   const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
+  // In production (Railway), use the provided PORT directly without checking availability
+  // Port checking can cause race conditions with Railway's health probes  
+  const port = process.env.NODE_ENV === "production"
+    ? preferredPort
+    : await findAvailablePort(preferredPort);
 
-  if (port !== preferredPort) {
+  if (port !== preferredPort && process.env.NODE_ENV !== "production") {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
