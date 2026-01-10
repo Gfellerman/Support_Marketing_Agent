@@ -42,15 +42,15 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="org-name">Organization Name</Label>
-                <Input id="org-name" defaultValue="Lacasa Market" />
+                <Input id="org-name" defaultValue="My Store" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="org-email">Contact Email</Label>
-                <Input id="org-email" type="email" defaultValue="contact@lacasa.market" />
+                <Input id="org-email" type="email" defaultValue={`contact@${window.location.hostname}`} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="org-website">Website</Label>
-                <Input id="org-website" defaultValue="https://lacasa.market" />
+                <Input id="org-website" defaultValue={window.location.origin} />
               </div>
               <Button>Save Changes</Button>
             </CardContent>
@@ -64,15 +64,15 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="from-name">From Name</Label>
-                <Input id="from-name" defaultValue="Lacasa Market" />
+                <Input id="from-name" defaultValue="My Store Team" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="from-email">From Email</Label>
-                <Input id="from-email" type="email" defaultValue="hello@lacasa.market" />
+                <Input id="from-email" type="email" defaultValue={`hello@${window.location.hostname}`} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="reply-to">Reply-To Email</Label>
-                <Input id="reply-to" type="email" defaultValue="support@lacasa.market" />
+                <Input id="reply-to" type="email" defaultValue={`support@${window.location.hostname}`} />
               </div>
               <Button>Save Changes</Button>
             </CardContent>
@@ -94,9 +94,9 @@ export default function Settings() {
             <CardContent>
               <div className="space-y-4">
                 {[
-                  { name: "John Doe", email: "john@lacasa.market", role: "Admin" },
-                  { name: "Jane Smith", email: "jane@lacasa.market", role: "Agent" },
-                  { name: "Bob Wilson", email: "bob@lacasa.market", role: "Agent" },
+                  { name: "John Doe", email: `john@${window.location.hostname}`, role: "Admin" },
+                  { name: "Jane Smith", email: `jane@${window.location.hostname}`, role: "Agent" },
+                  { name: "Bob Wilson", email: `bob@${window.location.hostname}`, role: "Agent" },
                 ].map((member) => (
                   <div
                     key={member.email}
