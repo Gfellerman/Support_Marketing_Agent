@@ -12,7 +12,7 @@
     "dev:client": "vite",
     "build": "pnpm build:client && pnpm build:server && rm -rf node_modules || true",
     "build:client": "vite build",
-    "build:server": "esbuild server/index.ts --bundle --platform=node --target=node18 --outdir=dist --format=esm --external:vite --external:@builder.io/vite-plugin-jsx-loc --external:@tailwindcss/vite --external:@vitejs/plugin-react --external:vite-plugin-manus-runtime --external:lightningcss --external:@tailwindcss/oxide* --external:@babel/*",
+    "build:server": "esbuild server/index.ts --bundle --platform=node --target=node18 --outdir=dist --format=cjs --external:vite --external:@builder.io/vite-plugin-jsx-loc --external:@tailwindcss/vite --external:@vitejs/plugin-react --external:vite-plugin-manus-runtime --external:lightningcss --external:@tailwindcss/oxide* --external:@babel/*",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
