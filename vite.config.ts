@@ -7,9 +7,10 @@ import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
-// __dirname shim for Node.js 18 ES modules compatibility
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Handle both CJS (bundled) and ESM (dev) environments
+const currentDir = typeof __dirname !== 'undefined'
+  ? __dirname
+  : path.dirname(fileURLToPath(import.meta.url));
 
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime()];
 
@@ -17,16 +18,16 @@ export default defineConfig({
   plugins,
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "client", "src"),
-      "@shared": path.resolve(__dirname, "shared"),
-      "@assets": path.resolve(__dirname, "attached_assets"),
+      "@": path.resolve(currentDir, "client", "src"),
+      "@shared": path.resolve(currentDir, "shared"),
+      "@assets": path.resolve(currentDir, "attached_assets"),
     },
   },
-  envDir: path.resolve(__dirname),
-  root: path.resolve(__dirname, "client"),
-  publicDir: path.resolve(__dirname, "client", "public"),
+  envDir: path.resolve(currentDir),
+  root: path.resolve(currentDir, "client"),
+  publicDir: path.resolve(currentDir, "client", "public"),
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
+    outDir: path.resolve(currentDir, "dist/public"),
     emptyOutDir: true,
   },
   server: {

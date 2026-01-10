@@ -5,8 +5,11 @@ import { fileURLToPath } from "url";
 import { type Server } from "http";
 import { nanoid } from "nanoid";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Handle both CJS (bundled) and ESM (dev) environments
+const currentDir = typeof __dirname !== 'undefined'
+  ? __dirname
+  : path.dirname(fileURLToPath(import.meta.url));
+
 
 export async function setupVite(app: Express, server: Server) {
   const { createServer: createViteServer } = await import("vite");
@@ -31,7 +34,7 @@ export async function setupVite(app: Express, server: Server) {
 
     try {
       const clientTemplate = path.resolve(
-        __dirname,
+        currentDir,
         "../client",
         "index.html"
       );
@@ -66,8 +69,8 @@ export function serveStatic(app: Express) {
 
   const distPath =
     process.env.NODE_ENV === "development"
-      ? path.resolve(__dirname, "../dist/public") // relative to server/
-      : path.resolve(__dirname, "public"); // relative to dist/
+      ? path.resolve(currentDir, "../dist/public") // relative to server/
+      : path.resolve(currentDir, "public"); // relative to dist/
 
   if (!fs.existsSync(distPath)) {
     console.error(
