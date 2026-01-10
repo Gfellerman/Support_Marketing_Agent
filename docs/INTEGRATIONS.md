@@ -547,4 +547,4 @@ Webhooks enable real-time synchronization when data changes in the e-commerce pl
 For integration issues or questions:
 - Check the [GitHub Issues](https://github.com/yourusername/lacasa-email-platform/issues)
 - Read the [API Reference](./API_REFERENCE.md)
-- Contact support: support@lacasa.market
+- Contact support: support@example.com

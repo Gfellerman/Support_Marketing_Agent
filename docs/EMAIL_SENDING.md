@@ -126,8 +126,8 @@ const result = await sendEmail({
   subject: 'Welcome to our platform!',
   htmlBody: '<h1>Welcome {{firstName}}!</h1>',
   textBody: 'Welcome {{firstName}}!',
-  fromEmail: 'noreply@lacasa.market',
-  fromName: 'Lacasa Platform',
+   fromEmail: 'noreply@example.com',
+   fromName: 'My Platform',
   trackOpens: true,
   trackClicks: true,
   campaignId: 123,
@@ -152,9 +152,9 @@ import { renderTemplate, getTemplate } from './server/email/templates';
 const welcomeTemplate = getTemplate('welcome');
 const rendered = renderTemplate(welcomeTemplate, {
   first_name: 'John',
-  store_name: 'Lacasa Market',
-  shop_url: 'https://lacasa.market',
-  unsubscribe_url: 'https://lacasa.market/unsubscribe/token',
+   store_name: 'My Store',
+   shop_url: 'https://example.com',
+   unsubscribe_url: 'https://example.com/unsubscribe/token',
 });
 
 // Or render a custom template
@@ -206,8 +206,8 @@ await queueEmail({
   content: {
     subject: 'Test',
     htmlBody: '<p>Test email</p>',
-    fromEmail: 'noreply@lacasa.market',
-    fromName: 'Lacasa',
+     fromEmail: 'noreply@example.com',
+     fromName: 'My Store',
   },
   campaignId: 123,
   contactId: 456,
@@ -225,8 +225,8 @@ await queueCampaign({
   content: {
     subject: 'Newsletter',
     htmlBody: '<h1>Hello {{firstName}}!</h1>',
-    fromEmail: 'newsletter@lacasa.market',
-    fromName: 'Lacasa Newsletter',
+     fromEmail: 'newsletter@example.com',
+     fromName: 'Newsletter',
   },
   trackOpens: true,
   trackClicks: true,
@@ -278,8 +278,8 @@ If `SENDGRID_WEBHOOK_PUBLIC_KEY` is set, webhooks are verified using ECDSA signa
 const { campaignId } = await trpc.campaigns.create.mutate({
   name: 'Black Friday Sale',
   subject: '🔥 50% OFF Everything!',
-  fromEmail: 'sales@lacasa.market',
-  fromName: 'Lacasa Sales Team',
+   fromEmail: 'sales@example.com',
+   fromName: 'Sales Team',
   htmlBody: '<h1>Big Sale!</h1><p>Shop now at {{shop_url}}</p>',
   textBody: 'Big Sale! Shop now at {{shop_url}}',
   scheduledFor: new Date('2025-11-29T00:00:00Z'), // Optional
@@ -292,8 +292,8 @@ const { campaignId } = await trpc.campaigns.create.mutate({
 const result = await trpc.campaigns.send.mutate({
   campaignId: 123,
   recipientIds: [1, 2, 3], // Optional, sends to all if omitted
-  fromEmail: 'sales@lacasa.market',
-  fromName: 'Lacasa Sales',
+   fromEmail: 'sales@example.com',
+   fromName: 'Sales Team',
   testMode: false, // Set to true for dry run
 });
 
@@ -599,4 +599,4 @@ For issues or questions:
 - Check the [troubleshooting section](#troubleshooting) above
 - Review SendGrid's [documentation](https://docs.sendgrid.com/)
 - Open an issue on GitHub
-- Contact support at help@lacasa.market
+ - Contact support at help@example.com
