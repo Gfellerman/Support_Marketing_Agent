@@ -69,7 +69,7 @@ pnpm install
 Create a `.env` file in the project root:
 
 ```env
-DATABASE_URL=mysql://user:password@localhost:3306/lacasa_dev
+DATABASE_URL=mysql://user:password@localhost:3306/sma_dev
 JWT_SECRET=your-development-secret
 VITE_APP_ID=dev-app-id
 OAUTH_SERVER_URL=https://api.manus.im
@@ -454,7 +454,6 @@ pnpm test             # Run tests
 - **GitHub Discussions:** Ask questions and share ideas
 - **GitHub Issues:** Report bugs and request features
 - **Discord:** Join our community server (link in README)
-- **Email:** support@lacasa.market
 
 ---
 

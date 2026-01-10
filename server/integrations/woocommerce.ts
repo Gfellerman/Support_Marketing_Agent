@@ -175,7 +175,7 @@ export class WooCommerceClient {
     // Add OAuth 1.0a authentication to all requests
     this.client.interceptors.request.use((config) => {
       const url = new URL(config.url!, this.client.defaults.baseURL);
-      
+
       // For HTTPS, use query string authentication (simpler)
       if (url.protocol === 'https:') {
         config.params = {
@@ -335,7 +335,7 @@ export class WooCommerceClient {
    */
   async createWebhook(topic: string, deliveryUrl: string): Promise<void> {
     await this.client.post('/webhooks', {
-      name: `Lacasa Platform - ${topic}`,
+      name: `Support Marketing Agent - ${topic}`,
       topic,
       delivery_url: deliveryUrl,
       status: 'active',

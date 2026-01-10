@@ -1,6 +1,9 @@
 {
-  "name": "lacasa_email_platform",
-  "version": "1.0.0",
+  "name": "support-marketing-agent",
+  "version": "2.1.0",
+  "description": "Headless customer engagement platform combining email marketing, AI helpdesk, and order tracking",
+  "author": "Nicolas Gfeller <contact@swisswpsecure.ch>",
+  "homepage": "https://swisswpsecure.com",
   "type": "module",
   "license": "MIT",
   "scripts": {

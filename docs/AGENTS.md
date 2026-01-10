@@ -1,6 +1,6 @@
 # AI Agents Guide
 
-This document explains how the AI-powered customer service agent works in the Lacasa Email Platform, including architecture, implementation details, and training strategies.
+This document explains how the AI-powered customer service agent works in the Support Marketing Agent, including architecture, implementation details, and training strategies.
 
 ---
 

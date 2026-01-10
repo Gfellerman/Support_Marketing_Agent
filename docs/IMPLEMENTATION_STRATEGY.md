@@ -1,6 +1,6 @@
 # Implementation Strategy
 
-This document outlines the phased approach to building the Lacasa Email Platform from prototype to production-ready system. Each phase builds on the previous one, delivering incremental value while maintaining code quality and system stability.
+This document outlines the phased approach to building the Support Marketing Agent from prototype to production-ready system. Each phase builds on the previous one, delivering incremental value while maintaining code quality and system stability.
 
 ---
 

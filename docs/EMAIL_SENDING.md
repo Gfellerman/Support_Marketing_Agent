@@ -4,7 +4,7 @@ Complete guide to the email sending system with SendGrid integration, template e
 
 ## Overview
 
-The Lacasa Email Platform includes a production-ready email sending infrastructure with:
+The Support Marketing Agent includes a production-ready email sending infrastructure with:
 
 - **SendGrid Integration** - Professional email delivery with high deliverability rates
 - **Template Engine** - Handlebars-based templating with pre-built email templates

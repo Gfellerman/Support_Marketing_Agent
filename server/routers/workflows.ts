@@ -9,10 +9,10 @@ import { protectedProcedure, router } from '../_core/trpc';
 import { eq, and, desc } from 'drizzle-orm';
 import { getDb } from '../db';
 import { workflows, workflowEnrollments, contacts } from '../../drizzle/schema';
-import { 
-  enrollContact, 
-  triggerWorkflows, 
-  exitWorkflow, 
+import {
+  enrollContact,
+  triggerWorkflows,
+  exitWorkflow,
   getWorkflowAnalytics,
   WorkflowTrigger
 } from '../workflows/engine';
@@ -207,7 +207,7 @@ export const workflowsRouter = router({
       if (!db) return [];
 
       let conditions = [eq(workflowEnrollments.workflowId, input.workflowId)];
-      
+
       if (input.status && input.status !== 'all') {
         conditions.push(eq(workflowEnrollments.status, input.status));
       }
@@ -327,7 +327,7 @@ export const workflowsRouter = router({
               subject: 'Welcome to {{store_name}}!',
               htmlBody: '<h1>Welcome {{first_name}}!</h1><p>Thanks for subscribing.</p>',
               fromEmail: `hello@${appDomain}`,
-              fromName: 'Lacasa Team',
+              fromName: 'Your Store',
             },
           },
           {
@@ -345,7 +345,7 @@ export const workflowsRouter = router({
               subject: 'Here\'s what you can do with {{store_name}}',
               htmlBody: '<h1>Getting Started</h1><p>Here are some tips...</p>',
               fromEmail: `hello@${appDomain}`,
-              fromName: 'Lacasa Team',
+              fromName: 'Your Store',
             },
           },
           {
@@ -363,7 +363,7 @@ export const workflowsRouter = router({
               subject: 'Special offer just for you',
               htmlBody: '<h1>10% Off Your First Order</h1><p>Use code WELCOME10</p>',
               fromEmail: `hello@${appDomain}`,
-              fromName: 'Lacasa Team',
+              fromName: 'Your Store',
             },
           },
         ],
@@ -389,7 +389,7 @@ export const workflowsRouter = router({
               subject: 'You left something behind...',
               htmlBody: '<h1>Complete your order</h1><p>You have {{cart_items_count}} items waiting.</p>',
               fromEmail: `cart@${appDomain}`,
-              fromName: 'Lacasa Cart',
+              fromName: 'Your Store',
             },
           },
           {
@@ -407,7 +407,7 @@ export const workflowsRouter = router({
               subject: 'Still interested? Here\'s 10% off',
               htmlBody: '<h1>10% Off Your Cart</h1><p>Use code CART10 at checkout.</p>',
               fromEmail: `cart@${appDomain}`,
-              fromName: 'Lacasa Cart',
+              fromName: 'Your Store',
             },
           },
           {
@@ -425,7 +425,7 @@ export const workflowsRouter = router({
               subject: 'Last chance - Your cart expires soon',
               htmlBody: '<h1>Final Reminder</h1><p>Your cart will expire in 24 hours.</p>',
               fromEmail: `cart@${appDomain}`,
-              fromName: 'Lacasa Cart',
+              fromName: 'Your Store',
             },
           },
         ],
@@ -443,7 +443,7 @@ export const workflowsRouter = router({
               subject: 'Thank you for your order!',
               htmlBody: '<h1>Order Confirmed</h1><p>Your order #{{order_number}} is confirmed.</p>',
               fromEmail: `orders@${appDomain}`,
-              fromName: 'Lacasa Orders',
+              fromName: 'Your Store',
             },
           },
           {
@@ -461,7 +461,7 @@ export const workflowsRouter = router({
               subject: 'How was your experience?',
               htmlBody: '<h1>We\'d love your feedback</h1><p>Please rate your recent purchase.</p>',
               fromEmail: `feedback@${appDomain}`,
-              fromName: 'Lacasa Team',
+              fromName: 'Your Store',
             },
           },
         ],
