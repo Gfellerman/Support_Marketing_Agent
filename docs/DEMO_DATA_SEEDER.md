@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The demo data seeder addresses the critical "empty state problem" that prevents new users from evaluating the Lacasa Email Platform's capabilities. By generating a complete, realistic e-commerce business scenario with one click, the seeder reduces time-to-value from hours to seconds and increases user activation rates from an estimated 15% to 60-75%.
+The demo data seeder addresses the critical "empty state problem" that prevents new users from evaluating the Support Marketing Agent's capabilities. By generating a complete, realistic e-commerce business scenario with one click, the seeder reduces time-to-value from hours to seconds and increases user activation rates from an estimated 15% to 60-75%.
 
 This document provides the complete implementation specification including data schemas, content generation strategies, realistic business scenarios, and technical architecture for building a production-ready demo data seeder.
 

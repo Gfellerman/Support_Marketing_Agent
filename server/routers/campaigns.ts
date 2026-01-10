@@ -174,7 +174,7 @@ export const campaignsRouter = router({
         // Use from email from input or default
         const appDomain = process.env.APP_URL ? new URL(process.env.APP_URL).hostname.replace(/^www\./, '') : 'example.com';
         const fromEmail = input.fromEmail || `noreply@${appDomain}`;
-        const fromName = input.fromName || 'Lacasa Platform';
+        const fromName = input.fromName || 'Your Store';
         
         // Get recipients
         let recipients;

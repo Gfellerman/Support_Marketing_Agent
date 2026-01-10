@@ -1,6 +1,6 @@
 # E-commerce Integrations Guide
 
-This document explains how the Lacasa Email Platform integrates with Shopify and WooCommerce stores to automatically sync customers, orders, and products.
+This document explains how the Support Marketing Agent integrates with Shopify and WooCommerce stores to automatically sync customers, orders, and products.
 
 ---
 
@@ -247,7 +247,7 @@ await client.createWebhook(
 
 ## Sync Engine
 
-The **Sync Engine** (`server/integrations/syncEngine.ts`) handles data synchronization between e-commerce platforms and the Lacasa database.
+The **Sync Engine** (`server/integrations/syncEngine.ts`) handles data synchronization between e-commerce platforms and the platform database.
 
 ### Features
 
@@ -459,7 +459,7 @@ Webhooks enable real-time synchronization when data changes in the e-commerce pl
    - Log into WooCommerce admin
    - Go to WooCommerce → Settings → Advanced → REST API
    - Click "Add key"
-   - Set description: "Lacasa Email Platform"
+   - Set description: "Support Marketing Agent"
    - Set permissions: "Read/Write"
    - Copy consumer key and secret
 
@@ -536,7 +536,7 @@ Webhooks enable real-time synchronization when data changes in the e-commerce pl
 - **BigCommerce integration** - Support additional e-commerce platforms
 - **Magento integration** - Enterprise e-commerce support
 - **Custom API integration** - Generic REST API connector
-- **Two-way sync** - Update e-commerce platforms from Lacasa
+- **Two-way sync** - Update e-commerce platforms from Support Marketing Agent
 - **Product recommendations** - AI-powered product suggestions in emails
 - **Inventory sync** - Track stock levels for automated campaigns
 
@@ -545,6 +545,5 @@ Webhooks enable real-time synchronization when data changes in the e-commerce pl
 ## Support
 
 For integration issues or questions:
-- Check the [GitHub Issues](https://github.com/yourusername/lacasa-email-platform/issues)
+- Check the GitHub Issues
 - Read the [API Reference](./API_REFERENCE.md)
-- Contact support: support@example.com
