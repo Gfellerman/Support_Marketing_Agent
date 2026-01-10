@@ -72,9 +72,9 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  // Listen on all interfaces (IPv6 :: and IPv4 0.0.0.0)
-  server.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  // Explicitly bind to 0.0.0.0 for Railway/Docker compliance
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`Server (0.0.0.0) running on port ${port}`);
   });
 }
 
