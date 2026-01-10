@@ -84,9 +84,9 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  // Explicitly bind to 0.0.0.0 for Railway/Docker compliance
-  server.listen(port, "0.0.0.0", () => {
-    console.log(`Server (0.0.0.0) running on port ${port}`);
+  // Listen on '::' to support both IPv6 and IPv4 (Dual Stack)
+  server.listen(port, "::", () => {
+    console.log(`Server (::) running on port ${port}`);
   });
 }
 
