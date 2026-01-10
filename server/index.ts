@@ -70,7 +70,7 @@ async function startServer() {
 
   // Explicitly bind to 0.0.0.0 for Railway/Docker
   server.listen(port, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${port}/`);
+    console.log(`Server (0.0.0.0) running on http://0.0.0.0:${port}/`);
   });
 }
 

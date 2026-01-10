@@ -310,6 +310,8 @@ export const workflowsRouter = router({
    * Get workflow templates
    */
   templates: protectedProcedure.query(async () => {
+    const appDomain = process.env.APP_URL ? new URL(process.env.APP_URL).hostname.replace(/^www\./, '') : 'example.com';
+
     // Return pre-built workflow templates
     return [
       {
@@ -324,7 +326,7 @@ export const workflowsRouter = router({
             config: {
               subject: 'Welcome to {{store_name}}!',
               htmlBody: '<h1>Welcome {{first_name}}!</h1><p>Thanks for subscribing.</p>',
-              fromEmail: 'hello@lacasa.market',
+              fromEmail: `hello@${appDomain}`,
               fromName: 'Lacasa Team',
             },
           },
@@ -342,7 +344,7 @@ export const workflowsRouter = router({
             config: {
               subject: 'Here\'s what you can do with {{store_name}}',
               htmlBody: '<h1>Getting Started</h1><p>Here are some tips...</p>',
-              fromEmail: 'hello@lacasa.market',
+              fromEmail: `hello@${appDomain}`,
               fromName: 'Lacasa Team',
             },
           },
@@ -360,7 +362,7 @@ export const workflowsRouter = router({
             config: {
               subject: 'Special offer just for you',
               htmlBody: '<h1>10% Off Your First Order</h1><p>Use code WELCOME10</p>',
-              fromEmail: 'hello@lacasa.market',
+              fromEmail: `hello@${appDomain}`,
               fromName: 'Lacasa Team',
             },
           },
@@ -386,7 +388,7 @@ export const workflowsRouter = router({
             config: {
               subject: 'You left something behind...',
               htmlBody: '<h1>Complete your order</h1><p>You have {{cart_items_count}} items waiting.</p>',
-              fromEmail: 'cart@lacasa.market',
+              fromEmail: `cart@${appDomain}`,
               fromName: 'Lacasa Cart',
             },
           },
@@ -404,7 +406,7 @@ export const workflowsRouter = router({
             config: {
               subject: 'Still interested? Here\'s 10% off',
               htmlBody: '<h1>10% Off Your Cart</h1><p>Use code CART10 at checkout.</p>',
-              fromEmail: 'cart@lacasa.market',
+              fromEmail: `cart@${appDomain}`,
               fromName: 'Lacasa Cart',
             },
           },
@@ -422,7 +424,7 @@ export const workflowsRouter = router({
             config: {
               subject: 'Last chance - Your cart expires soon',
               htmlBody: '<h1>Final Reminder</h1><p>Your cart will expire in 24 hours.</p>',
-              fromEmail: 'cart@lacasa.market',
+              fromEmail: `cart@${appDomain}`,
               fromName: 'Lacasa Cart',
             },
           },
@@ -440,7 +442,7 @@ export const workflowsRouter = router({
             config: {
               subject: 'Thank you for your order!',
               htmlBody: '<h1>Order Confirmed</h1><p>Your order #{{order_number}} is confirmed.</p>',
-              fromEmail: 'orders@lacasa.market',
+              fromEmail: `orders@${appDomain}`,
               fromName: 'Lacasa Orders',
             },
           },
@@ -458,7 +460,7 @@ export const workflowsRouter = router({
             config: {
               subject: 'How was your experience?',
               htmlBody: '<h1>We\'d love your feedback</h1><p>Please rate your recent purchase.</p>',
-              fromEmail: 'feedback@lacasa.market',
+              fromEmail: `feedback@${appDomain}`,
               fromName: 'Lacasa Team',
             },
           },
