@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
-import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter } from "./routers";
 import { createContext } from "./context";
@@ -9,26 +8,6 @@ import { serveStatic, setupVite } from "./vite";
 import trackingRouter from "./email/tracking";
 import webhooksRouter from "./email/webhooks";
 import apiRouter from "./rest-api";
-
-function isPortAvailable(port: number): Promise<boolean> {
-  return new Promise(resolve => {
-    const server = net.createServer();
-    // Check availability on all interfaces
-    server.listen(port, "0.0.0.0", () => {
-      server.close(() => resolve(true));
-    });
-    server.on("error", () => resolve(false));
-  });
-}
-
-async function findAvailablePort(startPort: number = 3000): Promise<number> {
-  for (let port = startPort; port < startPort + 20; port++) {
-    if (await isPortAvailable(port)) {
-      return port;
-    }
-  }
-  throw new Error(`No available port found starting from ${startPort}`);
-}
 
 async function startServer() {
   const app = express();
@@ -73,20 +52,14 @@ async function startServer() {
     serveStatic(app);
   }
 
-  const preferredPort = parseInt(process.env.PORT || "3000");
-  // In production (Railway), use the provided PORT directly without checking availability
-  // Port checking can cause race conditions with Railway's health probes  
-  const port = process.env.NODE_ENV === "production"
-    ? preferredPort
-    : await findAvailablePort(preferredPort);
+  // Use the PORT provided by Railway, default to 3000
+  const port = parseInt(process.env.PORT || "3000", 10);
 
-  if (port !== preferredPort && process.env.NODE_ENV !== "production") {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
-  }
-
-  // Listen on '::' to support both IPv6 and IPv4 (Dual Stack)
-  server.listen(port, "::", () => {
-    console.log(`Server (::) running on port ${port}`);
+  // Listen on 0.0.0.0 to accept connections from outside the container
+  server.listen(port, "0.0.0.0", () => {
+    const address = server.address();
+    console.log(`Server running on port ${port}`);
+    console.log(`Bound to address:`, address);
   });
 }
 
