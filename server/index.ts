@@ -33,6 +33,18 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  // Request logging middleware to debug 502 errors
+  app.use((req, res, next) => {
+    console.log(`[REQUEST] ${req.method} ${req.url} - ${new Date().toISOString()}`);
+    next();
+  });
+
+  // Simple health check endpoint
+  app.get("/health", (req, res) => {
+    res.status(200).send("OK");
+  });
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -72,9 +84,9 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  // Listen on all interfaces (IPv6 :: and IPv4 0.0.0.0)
-  server.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  // Explicitly bind to 0.0.0.0 for Railway/Docker compliance
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`Server (0.0.0.0) running on port ${port}`);
   });
 }
 
