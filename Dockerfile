@@ -23,7 +23,7 @@ RUN pnpm build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=8080
+ENV PORT=3000
 
 # Create a non-root user for security (and to match unexpected Railway permissions)
 RUN addgroup --system --gid 1001 nodejs
@@ -35,6 +35,6 @@ COPY --from=build /app/package.json ./
 
 USER reactjs
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["node", "dist/index.cjs"]
