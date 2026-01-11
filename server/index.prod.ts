@@ -28,6 +28,15 @@ console.log(`[STARTUP] publicDir: ${publicDir}`);
 console.log(`[STARTUP] publicDir exists: ${fs.existsSync(publicDir)}`);
 
 async function startServer() {
+    console.log("[STARTUP] startServer() called at", new Date().toISOString());
+
+    // Heartbeat to verify process is alive
+    let heartbeatCount = 0;
+    setInterval(() => {
+        heartbeatCount++;
+        console.log(`[HEARTBEAT] Process alive - count: ${heartbeatCount}, memory: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
+    }, 10000);
+
     const app = express();
     const server = createServer(app);
 
