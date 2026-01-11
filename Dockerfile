@@ -8,6 +8,7 @@ RUN corepack enable
 FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
+COPY patches ./patches
 RUN pnpm install --frozen-lockfile
 
 # Build stage
@@ -16,8 +17,7 @@ WORKDIR /app
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 RUN pnpm build
-# Currently pnpm build compiles the debug server. 
-# Once verified, we will switch package.json back to the real server.
+# Builds the production Express server from server/index.ts
 
 # Production stage
 FROM base AS runner
