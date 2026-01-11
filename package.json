@@ -12,7 +12,7 @@
     "dev:client": "vite",
     "build": "pnpm build:client && pnpm build:server",
     "build:client": "vite build",
-    "build:server": "esbuild server/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.cjs --format=cjs --external:better-sqlite3",
+    "build:server": "esbuild server/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.cjs --format=cjs --external:better-sqlite3 --external:vite --external:lightningcss --external:@tailwindcss/* --external:tailwindcss --external:esbuild --external:@babel/* --external:@vitejs/*",
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
