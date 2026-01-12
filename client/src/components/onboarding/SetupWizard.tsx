@@ -110,7 +110,7 @@ export function SetupWizard({ onComplete, onSkip }: SetupWizardProps) {
     };
 
     return (
-        <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 z-50 overflow-y-auto">
             {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
@@ -118,7 +118,7 @@ export function SetupWizard({ onComplete, onSkip }: SetupWizardProps) {
             </div>
 
             {/* Main wizard container */}
-            <div className="relative w-full max-w-2xl mx-4">
+            <div className="relative w-full max-w-2xl mx-auto my-8 px-4 min-h-screen flex flex-col justify-center">
                 {/* Skip button */}
                 {onSkip && currentStep < 5 && (
                     <Button
@@ -151,10 +151,10 @@ export function SetupWizard({ onComplete, onSkip }: SetupWizardProps) {
                         <div
                             key={step.id}
                             className={`w-3 h-3 rounded-full transition-all duration-300 ${step.id === currentStep
-                                    ? "bg-white scale-125"
-                                    : step.id < currentStep
-                                        ? "bg-purple-400"
-                                        : "bg-white/30"
+                                ? "bg-white scale-125"
+                                : step.id < currentStep
+                                    ? "bg-purple-400"
+                                    : "bg-white/30"
                                 }`}
                         />
                     ))}
