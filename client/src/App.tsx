@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -5,6 +6,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
+import { SetupWizard } from "./components/onboarding/SetupWizard";
 
 // Pages
 import Dashboard from "./pages/Dashboard";
@@ -46,14 +48,50 @@ function Router() {
 }
 
 function App() {
+  const [showSetupWizard, setShowSetupWizard] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if setup has been completed
+    const setupComplete = localStorage.getItem("setupComplete");
+    setShowSetupWizard(setupComplete !== "true");
+    setIsLoading(false);
+  }, []);
+
+  const handleSetupComplete = () => {
+    localStorage.setItem("setupComplete", "true");
+    setShowSetupWizard(false);
+  };
+
+  const handleSkipSetup = () => {
+    localStorage.setItem("setupComplete", "skipped");
+    setShowSetupWizard(false);
+  };
+
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          <DashboardLayout>
-            <Router />
-          </DashboardLayout>
+
+          {/* Setup Wizard - shown on first visit */}
+          {showSetupWizard && (
+            <SetupWizard
+              onComplete={handleSetupComplete}
+              onSkip={handleSkipSetup}
+            />
+          )}
+
+          {/* Main application */}
+          {!showSetupWizard && (
+            <DashboardLayout>
+              <Router />
+            </DashboardLayout>
+          )}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
@@ -61,3 +99,4 @@ function App() {
 }
 
 export default App;
+
