@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Loader2, AlertCircle } from "lucide-react";
 import { WelcomeStep } from "./steps/WelcomeStep";
 import { StoreConnectionStep } from "./steps/StoreConnectionStep";
 import { EmailStep } from "./steps/EmailStep";
@@ -10,7 +10,9 @@ import { AIStep } from "./steps/AIStep";
 import { CompletionStep } from "./steps/CompletionStep";
 
 export interface SetupData {
-    // Step 1: Organization
+    // Step 1: Account & Organization
+    adminName: string;
+    password: string;
     organizationName: string;
     contactEmail: string;
     website: string;
@@ -34,6 +36,8 @@ export interface SetupData {
 }
 
 const initialData: SetupData = {
+    adminName: "",
+    password: "",
     organizationName: "",
     contactEmail: "",
     website: typeof window !== "undefined" ? window.location.origin : "",
@@ -66,6 +70,8 @@ interface SetupWizardProps {
 export function SetupWizard({ onComplete, onSkip }: SetupWizardProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const [data, setData] = useState<SetupData>(initialData);
+    const [registering, setRegistering] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const progress = (currentStep / steps.length) * 100;
 
@@ -73,7 +79,52 @@ export function SetupWizard({ onComplete, onSkip }: SetupWizardProps) {
         setData((prev) => ({ ...prev, ...updates }));
     };
 
-    const nextStep = () => {
+    const registerUser = async () => {
+        setRegistering(true);
+        setError(null);
+        try {
+            const response = await fetch('/api/trpc/auth.register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: data.contactEmail,
+                    password: data.password,
+                    name: data.adminName,
+                    organizationName: data.organizationName,
+                }),
+                credentials: 'include',
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                throw new Error(result.error.message || 'Registration failed');
+            }
+            return true;
+        } catch (err: any) {
+            setError(err.message || 'Failed to create account. Please try again.');
+            return false;
+        } finally {
+            setRegistering(false);
+        }
+    };
+
+    const nextStep = async () => {
+        // When leaving step 1, register the user
+        if (currentStep === 1) {
+            // Validate required fields
+            if (!data.contactEmail || !data.password || !data.adminName) {
+                setError('Please fill in all required fields');
+                return;
+            }
+            if (data.password.length < 6) {
+                setError('Password must be at least 6 characters');
+                return;
+            }
+
+            const success = await registerUser();
+            if (!success) return;
+        }
+
         if (currentStep < steps.length) {
             setCurrentStep((prev) => prev + 1);
         }
@@ -178,24 +229,44 @@ export function SetupWizard({ onComplete, onSkip }: SetupWizardProps) {
 
                     {/* Navigation */}
                     {currentStep < 5 && (
-                        <div className="px-8 py-6 bg-gray-50 border-t flex items-center justify-between">
-                            <Button
-                                variant="ghost"
-                                onClick={prevStep}
-                                disabled={currentStep === 1}
-                                className="gap-2"
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                                Back
-                            </Button>
+                        <div className="px-8 py-6 bg-gray-50 border-t space-y-3">
+                            {/* Error display */}
+                            {error && (
+                                <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+                                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                    <span>{error}</span>
+                                </div>
+                            )}
 
-                            <Button
-                                onClick={nextStep}
-                                className="gap-2 bg-purple-600 hover:bg-purple-700"
-                            >
-                                {currentStep === 4 ? "Finish Setup" : "Continue"}
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center justify-between">
+                                <Button
+                                    variant="ghost"
+                                    onClick={prevStep}
+                                    disabled={currentStep === 1 || registering}
+                                    className="gap-2"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                    Back
+                                </Button>
+
+                                <Button
+                                    onClick={nextStep}
+                                    disabled={registering}
+                                    className="gap-2 bg-purple-600 hover:bg-purple-700"
+                                >
+                                    {registering ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Creating Account...
+                                        </>
+                                    ) : (
+                                        <>
+                                            {currentStep === 1 ? "Create Account" : currentStep === 4 ? "Finish Setup" : "Continue"}
+                                            <ChevronRight className="h-4 w-4" />
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </div>

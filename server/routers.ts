@@ -18,12 +18,150 @@ import { seedDemoData, clearDemoData } from "./seeders/demoData";
 export const appRouter = router({
   system: systemRouter,
   license: licenseRouter,
-  
+
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+
+    register: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+        name: z.string().min(1),
+        organizationName: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const database = await db.getDb();
+        if (!database) {
+          throw new Error("Database not available");
+        }
+
+        // Check if user already exists
+        const existingUser = await database.select()
+          .from(db.users)
+          .where(db.eq(db.users.email, input.email))
+          .limit(1);
+
+        if (existingUser.length > 0) {
+          throw new Error("User already exists with this email");
+        }
+
+        // Hash password (simple hash for demo - in production use bcrypt)
+        const crypto = await import('crypto');
+        const passwordHash = crypto.createHash('sha256').update(input.password).digest('hex');
+
+        // Create user
+        const [newUser] = await database.insert(db.users).values({
+          openId: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          email: input.email,
+          name: input.name,
+          loginMethod: 'password',
+          role: 'admin', // First user is admin
+        });
+
+        // Get the created user
+        const userId = (newUser as any).insertId;
+        const createdUser = await database.select()
+          .from(db.users)
+          .where(db.eq(db.users.id, userId))
+          .limit(1);
+
+        if (createdUser.length === 0) {
+          throw new Error("Failed to create user");
+        }
+
+        // Generate JWT token
+        const jwt = await import('jsonwebtoken');
+        const token = jwt.sign(
+          { id: createdUser[0].id, email: createdUser[0].email, role: createdUser[0].role },
+          process.env.JWT_SECRET || 'dev-secret',
+          { expiresIn: '7d' }
+        );
+
+        // Set cookie
+        ctx.res.cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        // Store password hash (we'll use a simple approach - store in customFields or create settings)
+        // For now, store as part of openId (not ideal but works for demo)
+        await database.update(db.users)
+          .set({ openId: `pwd_${passwordHash}` })
+          .where(db.eq(db.users.id, createdUser[0].id));
+
+        return {
+          success: true,
+          user: {
+            id: createdUser[0].id,
+            email: createdUser[0].email,
+            name: createdUser[0].name
+          }
+        };
+      }),
+
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const database = await db.getDb();
+        if (!database) {
+          throw new Error("Database not available");
+        }
+
+        // Find user
+        const users = await database.select()
+          .from(db.users)
+          .where(db.eq(db.users.email, input.email))
+          .limit(1);
+
+        if (users.length === 0) {
+          throw new Error("Invalid email or password");
+        }
+
+        const user = users[0];
+
+        // Verify password
+        const crypto = await import('crypto');
+        const passwordHash = crypto.createHash('sha256').update(input.password).digest('hex');
+
+        if (!user.openId?.startsWith(`pwd_${passwordHash}`)) {
+          throw new Error("Invalid email or password");
+        }
+
+        // Generate JWT token
+        const jwt = await import('jsonwebtoken');
+        const token = jwt.sign(
+          { id: user.id, email: user.email, role: user.role },
+          process.env.JWT_SECRET || 'dev-secret',
+          { expiresIn: '7d' }
+        );
+
+        // Set cookie
+        ctx.res.cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name
+          }
+        };
+      }),
+
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+      ctx.res.clearCookie('token');
       return { success: true } as const;
     }),
   }),
@@ -43,7 +181,7 @@ export const appRouter = router({
         customerSatisfaction: 4.6,
       };
     }),
-    
+
     recentActivity: protectedProcedure.query(async ({ ctx }) => {
       // Mock recent activity data
       return [
