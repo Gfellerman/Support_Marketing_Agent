@@ -52,10 +52,24 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if setup has been completed
-    const setupComplete = localStorage.getItem("setupComplete");
-    setShowSetupWizard(setupComplete !== "true");
-    setIsLoading(false);
+    const checkSetupStatus = async () => {
+      // First check localStorage (fast path)
+      const localSetupComplete = localStorage.getItem("setupComplete");
+
+      // If localStorage says setup is complete, trust it but verify there's a user
+      if (localSetupComplete === "true" || localSetupComplete === "skipped") {
+        setShowSetupWizard(false);
+        setIsLoading(false);
+        return;
+      }
+
+      // For fresh visits, always show the wizard
+      // This ensures first-time users see the onboarding
+      setShowSetupWizard(true);
+      setIsLoading(false);
+    };
+
+    checkSetupStatus();
   }, []);
 
   const handleSetupComplete = () => {
