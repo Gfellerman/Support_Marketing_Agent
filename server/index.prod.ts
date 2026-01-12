@@ -111,7 +111,8 @@ async function startServer() {
         res.status(500).json({ error: 'Internal Server Error' });
     });
 
-    const port = parseInt(process.env.PORT || "3000", 10);
+    // Railway target port is configured to 3000
+    const port = 3000;
 
     server.listen(port, "0.0.0.0", () => {
         console.log(`[SERVER] Running on http://0.0.0.0:${port}`);
