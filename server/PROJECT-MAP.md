@@ -65,7 +65,10 @@ graph TB
 ```
 Support_Marketing_Agent/
 ├── client/                    # React Frontend (Capacitor-enabled)
-│   ├── src/                   # Application source (104 files)
+│   ├── src/                   # Application source
+│   │   ├── components/onboarding/  # Setup Wizard & Steps
+│   │   ├── pages/             # Route components
+│   │   └── ...
 │   ├── index.html
 │   └── capacitor.config.ts    # Mobile app configuration
 │
@@ -195,6 +198,12 @@ Support_Marketing_Agent/
 - [x] Campaign management & sending
 - [x] Open/click tracking
 - [x] SendGrid integration
+
+### Onboarding Wizard (100%)
+- [x] 5-step guided setup (Org, Store, Email, AI)
+- [x] User account creation & registration
+- [x] SendGrid/Resend/Mailgun configuration
+- [x] Shopify/WooCommerce connection UI
 
 ### Workflow Automation (100%)
 - [x] Visual drag-and-drop builder
