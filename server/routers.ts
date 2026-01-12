@@ -326,6 +326,38 @@ export const appRouter = router({
     }),
   }),
 
+  // Dev-only: Reset endpoints for testing
+  devReset: router({
+    // Clear all users (allows wizard to restart)
+    clearUsers: publicProcedure.mutation(async () => {
+      const database = await db.getDb();
+      if (!database) {
+        return { success: false, error: "Database not available" };
+      }
+      try {
+        await database.delete(db.users);
+        return { success: true, message: "All users cleared. Refresh to see wizard." };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    }),
+
+    // Full reset: Clear users + demo data
+    resetAll: publicProcedure.mutation(async () => {
+      const database = await db.getDb();
+      if (!database) {
+        return { success: false, error: "Database not available" };
+      }
+      try {
+        await database.delete(db.users);
+        await clearDemoData();
+        return { success: true, message: "All data cleared. Ready for fresh setup." };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    }),
+  }),
+
   analytics: router({
     overview: protectedProcedure
       .input(z.object({
