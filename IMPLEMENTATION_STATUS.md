@@ -1,7 +1,7 @@
 # Support Marketing Agent - Implementation Status Report
 
-> **Last Updated:** January 8, 2026
-> **Current Version:** 2.01
+> **Last Updated:** January 12, 2026
+> **Current Version:** 2.1.0 (with DB Reset)
 > **Overall Completion:** ~98%
 
 ---
@@ -49,6 +49,7 @@ The Support Marketing Agent is a comprehensive "Headless" customer engagement pl
 - ✅ **WordPress Plugin**: Installable via `support-marketing-agent.zip`.
 - ✅ **Web App**: Ready for deployment (Docker/Node).
 - ✅ **Mobile App**: Ready for local build (`npx cap open ios/android`).
+- ✅ **Database Admin**: Reset endpoint available at `/api/admin/reset?key=SMA-RESET`.
 
 ---
 
