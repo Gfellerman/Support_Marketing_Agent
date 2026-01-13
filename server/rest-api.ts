@@ -31,9 +31,14 @@ const authenticateApiKey = (req: express.Request, res: express.Response, next: e
   return res.status(403).json({ message: "Invalid API Key" });
 };
 
-// Health Check
+// Health Check (authenticated - for external integrations)
 apiRouter.get("/health", authenticateApiKey, (req, res) => {
   res.json({ status: "ok", version: "1.0.0" });
+});
+
+// Ping (unauthenticated - for Railway/Load Balancer health checks)
+apiRouter.get("/ping", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 // Admin Reset Endpoint - Easy access for user via browser
